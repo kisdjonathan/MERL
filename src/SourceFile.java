@@ -2,12 +2,14 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SourceFile extends Token{
-    private Map<String, Variable> exports = new HashMap<>();
-    private Map<String, Variable> imports = new HashMap<>();
+//SourceFile represents a single file of the program
+//TODO complete
+public class SourceFile extends FunctionDefinition {
+    private Map<String, Identifier> exports = new HashMap<>();
+    private Map<String, Identifier> imports = new HashMap<>();
 
-    public SourceFile(File sourceFile, Source master) {
-        master.addChild(this);
+    public SourceFile(File sourceFile) {
+        super(new Tuple(), new Tuple(), null); //TODO this is a placeholder, so find a better constructor or better superClass
         //TODO get all exports, imports, settings, and some literals and operations
     }
 
@@ -15,11 +17,11 @@ public class SourceFile extends Token{
         //TODO get all variables, determine usage of groups
     }
 
-    public Map<String, Variable> getExports() {
+    public Map<String, Identifier> getExports() {
         return exports;
     }
 
-    public Map<String, Variable> getImports() {
+    public Map<String, Identifier> getImports() {
         return imports;
     }
 

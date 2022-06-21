@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+//TokenWriter writes converted AST to machine code to an executable
+//TODO complete
 public class TokenWriter {
     BufferedWriter writer;
 

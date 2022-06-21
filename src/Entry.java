@@ -1,6 +1,8 @@
 import java.io.File;
 import java.util.*;
 
+//entry point of the program
+//TODO complete
 public class Entry {
     public static void main(String[] args) {
         Queue<String> paths = new LinkedList<>(Arrays.asList(args));
@@ -9,11 +11,11 @@ public class Entry {
         List<PrecompiledSource> dependencies = new ArrayList<>();
         List<SourceFile> sources = new ArrayList<>();
 
-        Map<String, Variable> undefinedVariables = new HashMap<>();
-        Map<String, Variable> imports = new HashMap<>();
-        Map<String, Variable> exports = new HashMap<>();
+        Map<String, Identifier> undefinedVariables = new HashMap<>();
+        Map<String, Identifier> imports = new HashMap<>();
+        Map<String, Identifier> exports = new HashMap<>();
 
-        Source build = new Source();
+        Program build = new Program();
 
         for(String path : paths) {
             SourceFile source = new SourceFile(new File(path), build);
