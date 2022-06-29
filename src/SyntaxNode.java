@@ -50,6 +50,10 @@ public abstract class SyntaxNode {
 
     public abstract Type getType();
 
+    public String toString() {
+        return getUsage() + " " + getName();
+    }
+
 
 //    private String name = null;
 //    private Usage usage = null;

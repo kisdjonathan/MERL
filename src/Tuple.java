@@ -7,6 +7,7 @@ public class Tuple extends SyntaxNode implements Iterable<SyntaxNode>{
     private Type type = null;
     private List<SyntaxNode> children = new ArrayList<>();
     private boolean constant = false;
+    private boolean complete = false;
 
     public Tuple(){}
     public Tuple(List<SyntaxNode> children){
@@ -55,6 +56,13 @@ public class Tuple extends SyntaxNode implements Iterable<SyntaxNode>{
     }
     public void setConstant(boolean v) {
         constant = v;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+    public void setComplete(boolean v) {
+        complete = v;
     }
 
     public void setType(Type type) {

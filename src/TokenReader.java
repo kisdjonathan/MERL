@@ -1,13 +1,22 @@
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.*;
 
 //TokenReader reads in the source file as raw tokens (only Groups, Tuples from semicolons, loops, id, Literals, and function calls are returned)
 //TODO complete
 //TODO delete commented code once complete
 public class TokenReader {
+    public static void main(String[] args) {
+        TokenReader reader = new TokenReader(new File("test.txt"));
+        SyntaxNode x = reader.getIdentifier();
+        SyntaxNode eqn = reader.getOperator(x);
+        System.out.println(eqn);
+//        System.out.println(reader.getIdentifier());
+//        System.out.println(reader.getLiteral());
+    }
+
+
     private SymbolReader source;
     private Queue<SyntaxNode> queue = new LinkedList<>();
 
@@ -16,8 +25,124 @@ public class TokenReader {
     }
 
     public SyntaxNode get() {
-        return null;    //TODO implement get
+        String next = source.get();
+        if(Group.isStartDelimiter(next))
+            return readGroup(next);
+        else if(Literal.isLiteral(next))
+            return readLiteral(next);
+        else
+            return readIdentifier(next);//TODO complete get based on switch of symbol
     }
+
+    //takes in first part of a literal
+    public Literal readLiteral(String value) {
+        if(value.equals("\"")){ //string
+            value = source.get();
+            if(Type.isSuffix(source.peek()))
+                return new Literal(value, Type.decode(source.get()));
+            else
+                return new Literal(value, Type.STR);
+        }
+        else if(Character.isDigit(value.charAt(0))){    //number
+            ParsePosition pos = new ParsePosition(0);
+            Number n = NumberFormat.getInstance().parse(value, pos);    //TODO implement hexadecimal numbers (issue with in-number letters, consider 0x)
+            String suffix = value.substring(pos.getIndex());
+
+            return new Literal(n.toString(), Type.decode(suffix));
+        }
+        else
+            return null;
+    }
+    public SyntaxNode getLiteral() {
+        return readLiteral(source.get());
+    }
+
+    public SyntaxNode readIdentifier(String id) {
+        if(Group.isStartDelimiter(source.peek())) {
+            Group mod1 = getGroup();
+            if(mod1.equals("()"))   //TODO complete
+                if(Group.isStartDelimiter(source.peek()))
+                    ;
+            else if(mod1.equals("[]"))
+                ;
+            else if(mod1.equals("{}"))
+                if(Group.isStartDelimiter(source.peek()))
+                    ;
+        }
+        else
+            return new Identifier(id);
+        return null;
+    }
+    public SyntaxNode getIdentifier() {
+        return readIdentifier(source.get());
+    }
+
+    //takes in a SymbolReader (starting right after the operator) and generates nodes with consideration to chaining and precedence
+    private Operator readOperator(SyntaxNode predecessor, String oper) {
+        Operator ret = new Operator(oper); ret.addChild(predecessor);
+
+        SyntaxNode next = get();
+        if(Operator.isOperator(source.peek()) && Operator.compareTo(oper, source.peek()) > 0) { //next comes before previous
+            ret.addChild(readOperator(next, source.get()));
+        }
+        else if (Operator.isOperator(source.peek()) && Operator.isChainable(oper, source.peek())) {
+            while(Operator.isChainable(oper, source.peek())) {
+                //TODO complete chaining
+            }
+        }
+        else {
+            ret.addChild(next);
+        }
+        return ret;
+    }
+    public Operator getOperator(SyntaxNode predecessor) {
+        return readOperator(predecessor, source.get());
+    }
+
+    //takes in a SymbolReader (starting right after the starting delimiter) and generates nodes for which it constructs a local up to the next delimiter
+    private Group readGroup(String startDelim) {
+        List<SyntaxNode> nodes = new ArrayList<>();
+        while(!Group.isEndDelimiter(source.peek()))
+            nodes.add(get());
+        return null;//TODO complete
+    }
+    public Group getGroup() {
+        return readGroup(source.get());
+    }
+
+//
+//    public SyntaxNode get() {
+//        String name = source.get();
+//
+//        if (isStartDelimiter(name)){
+//            Group ret = new Group();
+//            Tuple children = new Tuple();
+//            while(!isEndDelimiter(source.peek())) {
+//                children.addChild(get());
+//            }
+//            String start = name, end = source.get();
+//            name = start + end;
+//            ret.setName(name);
+//
+//            if (isSuffix(source.peek()))
+//                return constructGroup(ret, source.get());
+//            else
+//                return ret;
+//        }
+//        else if(source.peek().equals("\"")) {
+//            source.get();
+//            String val = source.get();
+//            if(isSuffix(source.peek()))
+//                return constructString(val, source.get());
+//            else
+//                return constructString(val, "");
+//        }
+//        else if(isNumberLiteral(source.peek())) {
+//
+//        }
+//
+//        return null;    //TODO implement get
+//    }
 //    public SyntaxNode get() {
 //        String name = source.get();
 //        SyntaxNode tok = new SyntaxNode(name);
@@ -138,49 +263,21 @@ public class TokenReader {
 //
 //        return balance_token(t);
 //    }
+//
+//    public SyntaxNode peek() {
+//        if(queue.isEmpty())
+//            queue.add(get());
+//        return queue.peek();
+//    }
 
-    public SyntaxNode peek() {
-        if(queue.isEmpty())
-            queue.add(get());
-        return queue.peek();
-    }
-
-    private static HashSet<String> suffixes = new HashSet(Arrays.asList(
-            "d", "ud", "ld", "uld",
-            "c", "uc", "lc", "ulc",
-            "f", "uf", "lf", "ulf",
-
-            "cl", "ucl", "lcl", "ulcl", //dynamic string
-            "cv", "ucv", "lcv", "ulcv", //static string
-
-            "l", "v",
-            "us", "s",
-            "m", "um",
-            "r"
+    private static HashSet<String> controlStructures = new HashSet<>(Arrays.asList(
+            "if", "repeat", "while", "for"
     ));
-    private static HashSet<String> operators = new HashSet(Arrays.asList(
-            "if", "repeat", "while", "for",
-            "assign", "context", "morph",
-            "connect", "attach", "associate", "discard",
-            "with"
-    ));
-    private boolean isStartDelimiter(String s) {
-        return s.length() == 1 && switch(s.charAt(0)){
-            case '[', '{', '(', '|' ->true;
-            default -> false;
-        };
+    private boolean isControlStructure(String s) {
+        return controlStructures.contains(s);
     }
-    private boolean isEndDelimiter(String s) {
-        return s.length() == 1 && switch(s.charAt(0)){
-            case ']', '}', ')', '|' ->true;
-            default -> false;
-        };
-    }
-    private boolean isSuffix(String s) {
-        return suffixes.contains(s);
-    }
-    private boolean isOperator(String s) {
-        return operators.contains(s);
+    private boolean isSeparator(String s) {
+        return s.equals(":");
     }
 
     public boolean eof() {

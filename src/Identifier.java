@@ -11,7 +11,7 @@ public class Identifier extends SyntaxNode {
         return name;
     }
     public Usage getUsage() {
-        return Usage.CUSTOM;
+        return Usage.IDENTIFIER;
     }
     public Type getType() {return type;}
     public void setType(Type type) {

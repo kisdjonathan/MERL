@@ -4,6 +4,7 @@ import java.util.Set;
 
 //Group serves only as a placeholder for the body in order to simulate precedence
 public class Group extends SyntaxNode{
+    private String name = null;
     private Type type = null;
     private SyntaxNode body = null;
     private boolean constant = false;
@@ -11,10 +12,13 @@ public class Group extends SyntaxNode{
 
     public Group(){}
 
-
-    public String getName() {
-        return null;
+    public void setName(String name){
+        this.name = name;
     }
+    public String getName() {
+        return name;
+    }
+
     public Usage getUsage() {
         return Usage.GROUP;
     }
@@ -53,5 +57,18 @@ public class Group extends SyntaxNode{
 
     public void setComplete(boolean v) {
         complete = v;
+    }
+
+    public static boolean isStartDelimiter(String s) {
+        return s.length() == 1 && switch(s.charAt(0)){
+            case '[', '{', '(', '|' ->true;
+            default -> false;
+        };
+    }
+    public static boolean isEndDelimiter(String s) {
+        return s.length() == 1 && switch(s.charAt(0)){
+            case ']', '}', ')', '|' ->true;
+            default -> false;
+        };
     }
 }

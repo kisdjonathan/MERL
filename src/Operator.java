@@ -1,16 +1,68 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 //Operator represents an operation between children
-public class Operator extends SyntaxNode {
-    private static List<Set<String>> precedences = new ArrayList<>();
-    private static int indexOf(String op) {
-        for(int index = 0; index < precedences.size(); ++index)
-            if(precedences.get(index).contains(op))
-                return index;
-        return -1;
+public class Operator extends SyntaxNode implements Comparable<Operator>{
+    private static class PrecedenceLevel {
+        public PrecedenceLevel(double pos, String prev, String nxt) {
+            position = pos;
+            previous = prev;
+            next = nxt;
+        }
+        public String previous = null, next = null;
+        public double position;
+    }
+    private static Map<String, PrecedenceLevel> precedences = new HashMap<>();
+    static {
+        precedences.put(";", new PrecedenceLevel(Long.MAX_VALUE, "=", null));
+        precedences.put("=", new PrecedenceLevel(0, "->", ";"));
+        precedences.put("->", new PrecedenceLevel(Long.MIN_VALUE, null, "="));
+
+        addOperatorBefore("=", "+");
+        addOperatorAt("+", "-");
+        addOperatorBefore("+", "*");
+        addOperatorAt("*", "/");
+    }
+    private static double indexOf(String op) {
+        return isOperator(op) ? precedences.get(op).position : -1;
+    }
+    public static boolean isOperator(String op) {
+        return precedences.containsKey(op);
+    }
+    public static int compareTo(String a, String b) {
+        double t = indexOf(a);
+        double o = indexOf(b);
+        return Double.compare(t, o);
+    }
+    public static void addOperatorBefore(String ref, String op) {
+        PrecedenceLevel topLevel = precedences.get(ref);
+        PrecedenceLevel lowLevel = precedences.get(topLevel.previous);
+        PrecedenceLevel curLevel = new PrecedenceLevel((topLevel.position + lowLevel.position)/2, topLevel.previous, lowLevel.next);
+        lowLevel.next = topLevel.previous = op;
+        precedences.put(op, curLevel);
+    }
+    public static void addOperatorAfter(String ref, String op) {
+        addOperatorBefore(precedences.get(ref).next, op);
+    }
+    public static void addOperatorAt(String ref, String op) {
+        precedences.put(op, precedences.get(ref));
+    }
+    private static List<Set<String>> chainGroups = Arrays.asList(
+            new HashSet<>(Arrays.asList(
+                    "<", "<=", "=", "=="
+            )),
+            new HashSet<>(Arrays.asList(
+                    ">", ">=", "=", "=="
+            ))
+            //TODO complete chaining
+    );
+    public static boolean isChainable(String op, String with) {
+        //TODO complete chaining
+        return false;
+//        for(var v : chainGroups) {
+//            if(v.contains(op) && v.contains(with))
+//                return true;
+//        }
+//        return false;
     }
 
     private String name = null;
@@ -83,7 +135,15 @@ public class Operator extends SyntaxNode {
         complete = v;
     }
 
+    public int compareTo(Operator other) {
+        return compareTo(getName(), other.getName());
+    }
+
     public int compareTo(String other) {
-        return indexOf(getName()) - indexOf(other);
+        return compareTo(getName(), other);
+    }
+
+    public String toString() {
+        return super.toString() + children;
     }
 }

@@ -8,8 +8,9 @@ public class SourceFile extends FunctionDefinition {
     private Map<String, Identifier> exports = new HashMap<>();
     private Map<String, Identifier> imports = new HashMap<>();
 
-    public SourceFile(File sourceFile) {
+    public SourceFile(File sourceFile, Program build) {
         super(new Tuple(), new Tuple(), null); //TODO this is a placeholder, so find a better constructor or better superClass
+        setParent(build);
         //TODO get all exports, imports, settings, and some literals and operations
     }
 

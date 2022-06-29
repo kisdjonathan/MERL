@@ -30,6 +30,13 @@ public class Type {
         this.builtin = builtin;
     }
 
+    public static boolean isSuffix(String suffix) {
+        return false;   //TODO implement
+    }
+    public static Type decode(String suffix) {
+        return null;    //TODO implement
+    }
+
     public void putComponent(String name, Type type) {
         composition.put(name, type);
     }

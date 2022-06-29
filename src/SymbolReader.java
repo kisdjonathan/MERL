@@ -8,136 +8,146 @@ import java.util.Queue;
 
 //SymbolReader breaks the input into tokens as it is being read
 public class SymbolReader {
-    private static final int[] literalChars = new int[]{
-            0,	0,	0,	0,	0,	0,	0,	0,
-            0,	0,	0,	0,	0,	0,	0,	0,
-            0,	0,	0,	0,	0,	0,	0,	0,
-            0,	0,	0,	0,	0,	0,	0,	0,
-            0,	0,	0,	0,	1,	0,	0,	0,	//$
-            0,	0,	0,	0,	0,	0,	1,	0,	//?
-            1,	1,	1,	1,	1,	1,	1,	1,	//0-7
-            1,	1,	0,	0,	0,	0,	0,	0,	//8-9
-            0,	1,	1,	1,	1,	1,	1,	1,	//A-G
-            1,	1,	1,	1,	1,	1,	1,	1,	//H-O
-            1,	1,	1,	1,	1,	1,	1,	1,	//P-W
-            1,	1,	1,	0,	0,	0,	0,	1,	//X-Z, _
-            0,	1,	1,	1,	1,	1,	1,	1,	//a-g
-            1,	1,	1,	1,	1,	1,	1,	1,	//h-o
-            1,	1,	1,	1,	1,	1,	1,	1,	//p-w
-            1,	1,	1,	0,	0,	0,	0,	0,	//x-z
-            0,	0,	0,	0,	0,	0,	0,	0
+    public static void main(String[] args) {    //DEBUG TODO remove
+        SymbolReader reader = new SymbolReader(new File("test.txt"));
+        while(!reader.eof())
+            System.out.println(reader.get());
+    }
+
+    private static final boolean[] literalChars = new boolean[256];
+    static{
+        //all literal chars
+        for(char i = '0'; i <= '9'; ++i)
+            literalChars[i] = true;
+        for(char i = 'A'; i <= 'Z'; ++i)
+            literalChars[i] = true;
+        for(char i = 'a'; i <= 'z'; ++i)
+            literalChars[i] = true;
+        literalChars['$'] = literalChars['?'] = literalChars['.'] = literalChars['_'] = true;
     };
 
     private BufferedReader source;
-    private Queue<String> lineBuffer = new LinkedList<>();
+    private Queue<String> lineBuffer = new LinkedList<>();  //lineBuffer is always full unless eof
+    private boolean eof = false;
 
     public SymbolReader(File source) {
         try {
             this.source = new BufferedReader(new FileReader(source));
-            peek(); //fill buffer
+            loadBuffer(); //fill buffer
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             System.exit(-1);
         }
     }
 
-    private void loadBuffer() {
-            String line = getLine(); //newline is used to prevent error when peeking at the next char
-            int cind = 0;
-            while (cind + 1 < line.length()) {   //before newline
-                int len = 1;
-                switch (line.charAt(cind)) {
-                    case '~': 	//~=, ~
-                    case '!':	//!=, !
-                    case '=':	//=, ==
-                        if (line.charAt(cind + 1) == '=')
-                            ++len;
-                        break;
-                    case '<':	//<=, <<, <
-                        if (line.charAt(cind + 1) == '=' || line.charAt(cind + 1) == '<')
-                            ++len;
-                        break;
-                    case '>':	//>=, >>, >
-                        if (line.charAt(cind + 1) == '=' || line.charAt(cind + 1) == '>')
-                            ++len;
-                        break;
-                    case '-':	//->, -
-                        if (line.charAt(cind + 1) == '>')
-                            ++len;
-                        break;
-                    case '|':	//|
-                        if (line.charAt(cind + 1) == '|')
-                            ++len;
-                        break;
-                    case '@':	//@
-                    case '#':	//#
-                    case '%':	//%
-                    case '^':	//^
-                    case '&':	//&
-                    case '+':	//+
-                    case '*':	//*
-                    case ':':	//:
-                    case ';':	//;
-                    case ',':	//,
-                    case '\\':  //\
-                    case '.':   //.
-                    case '(':	//(
-                    case ')':	//)
-                    case '{':	//{
-                    case '}':	//}
-                    case '[':	//[
-                    case ']':	//]
-                        break;
-                    case ' ':	//ignore
-                    case '\t':	//ignore
-                        ++cind;
-                        continue;
+    private void loadLine() {
+        String line = getLine(); //newline is used to prevent error when peeking at the next char
+        if(line == null)
+            return;
 
-                    case '/': {	////,/*,/
-                        if (line.charAt(cind + 1) == '/') {
-                            while(lineBuffer.isEmpty()) //make sure something is read
-                                loadBuffer();
-                            return;
-                        }
-                        else if (line.charAt(cind + 1) == '*') {
-                            while(line.charAt(cind) != '*' || line.charAt(cind + 1) != '/') {
-                                ++cind;
-                                if(cind >= line.length()) {
-                                    line = getLine();
-                                    cind = 0;
-                                }
+        int cind = 0;
+        while (cind + 1 < line.length()) {   //before newline
+            int len = 1;
+            switch (line.charAt(cind)) {
+                case '~': 	//~=, ~
+                case '!':	//!=, !
+                case '?':   //?=
+                case '=':	//=, ==
+                    if (line.charAt(cind + 1) == '=')
+                        ++len;
+                    break;
+                case '<':	//<=, <<, <
+                    if (line.charAt(cind + 1) == '=' || line.charAt(cind + 1) == '<')
+                        ++len;
+                    break;
+                case '>':	//>=, >>, >
+                    if (line.charAt(cind + 1) == '=' || line.charAt(cind + 1) == '>')
+                        ++len;
+                    break;
+                case '-':	//->, -
+                    if (line.charAt(cind + 1) == '>')
+                        ++len;
+                    break;
+                case '|':	//|
+                    if (line.charAt(cind + 1) == '|')
+                        ++len;
+                    break;
+                case '@':	//@
+                case '#':	//#
+                case '%':	//%
+                case '^':	//^
+                case '&':	//&
+                case '+':	//+
+                case '*':	//*
+                case ':':	//:
+                case ';':	//;
+                case ',':	//,
+                case '\\':  //\
+                case '.':   //.
+                case '(':	//(
+                case ')':	//)
+                case '{':	//{
+                case '}':	//}
+                case '[':	//[
+                case ']':	//]
+                    break;
+                case ' ':	//ignore
+                case '\t':	//ignore
+                    ++cind;
+                    continue;
+
+                case '/': {	////,/*,/
+                    if (line.charAt(cind + 1) == '/')
+                        return;
+                    else if (line.charAt(cind + 1) == '*') {
+                        while(line.charAt(cind) != '*' || line.charAt(cind + 1) != '/') {
+                            ++cind;
+                            if(cind >= line.length()) {
+                                line = getLine();
+                                cind = 0;
                             }
-                            continue;
                         }
-                        break;
-                    }
-
-                    case '\'':	//'...'
-                    case '"':	//"..."
-                        StringBuilder val = new StringBuilder();
-                        Map.Entry<String, Integer> temp = getStringLiteral(line, val, cind);
-                        cind = temp.getValue();
-                        line = temp.getKey();
-                        lineBuffer.add(val.toString());
                         continue;
-
-                    default:	//id
-                        while(isLiteralChar(line.charAt(cind + len)))
-                            ++len;
+                    }
+                    break;
                 }
 
-                lineBuffer.add(line.substring(cind, cind + len));
-                cind += len;
+                case '\'':	//'...'
+                case '"':	//"..."
+                    StringBuilder val = new StringBuilder();
+                    Map.Entry<String, Integer> temp = getStringLiteral(line, val, cind);
+                    cind = temp.getValue();
+                    line = temp.getKey();
+                    lineBuffer.add("\"");
+                    lineBuffer.add(val.toString());
+                    continue;
+
+                default:	//id
+                    while(isLiteralChar(line.charAt(cind + len)))
+                        ++len;
             }
+
+            lineBuffer.add(line.substring(cind, cind + len));
+            cind += len;
+        }
+    }
+
+    private void loadBuffer() {
+        while (lineBuffer.isEmpty() && !eof())
+            loadLine();
     }
 
     private boolean isLiteralChar(char charAt) {
-        return literalChars[charAt] != 0;
+        return literalChars[charAt];
     }
 
     private String getLine() {
         try {
-            return source.readLine() + '\n';
+            String ret = source.readLine();
+            if(ret != null)
+                return ret + '\n';
+            eof = true;
+            return null;
         } catch (IOException ex) {
             ex.printStackTrace();
             System.exit(-3);
@@ -147,7 +157,6 @@ public class SymbolReader {
 
     private Map.Entry<String, Integer> getStringLiteral(String line, StringBuilder ret, int cind) {
         char endDelim = line.charAt(cind);
-        ret.append(endDelim);
 
         ++cind;
         while (line.charAt(cind) != endDelim)
@@ -189,23 +198,25 @@ public class SymbolReader {
                 ret.append(line.charAt(cind));
             ++cind;
         }
+        ++cind; //end delimiter
 
         return Map.entry(line, cind);
     }
 
+    //strings are split into (",value)
+    //numbers are split into (num[, ., num][, e, num])
     public String get() {
+        String ret = lineBuffer.remove();
         if(lineBuffer.isEmpty())
             loadBuffer();
-        return lineBuffer.remove();
+        return ret;
     }
 
     public String peek() {
-        if(lineBuffer.isEmpty())
-            loadBuffer();
         return lineBuffer.peek();
     }
 
     public boolean eof() {
-        return lineBuffer.isEmpty();
+        return eof;
     }
 }
