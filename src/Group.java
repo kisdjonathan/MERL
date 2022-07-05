@@ -10,7 +10,12 @@ public class Group extends SyntaxNode{
     private boolean constant = false;
     private boolean complete = false;
 
-    public Group(){}
+    public Group(){
+
+    }
+    public Group(String name){
+        this.name = name;
+    }
 
     public void setName(String name){
         this.name = name;
@@ -70,5 +75,9 @@ public class Group extends SyntaxNode{
             case ']', '}', ')', '|' ->true;
             default -> false;
         };
+    }
+
+    public String toString() {
+        return super.toString() + "[" + body + "]";
     }
 }

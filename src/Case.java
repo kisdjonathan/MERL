@@ -1,18 +1,13 @@
-//Case represents the if/else/any cases in control structures
+//Case represents the cases of chained operators (ie </=/<=, else/nelse, etc) in control structures
 //TODO complete
-public class Case extends SyntaxNode{
-    @Override
-    public String getName() {
-        return null;
+public class Case extends Group{
+
+    public Case(String name, SyntaxNode value) {
+        super(name);
+        setBody(value);
     }
 
-    @Override
     public Usage getUsage() {
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        return null;
+        return Usage.CASE;
     }
 }

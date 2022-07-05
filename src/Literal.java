@@ -23,6 +23,7 @@ public class Literal extends SyntaxNode{
         //TODO write bytes
     }
 
+    //TODO custom suffixes
     private static HashSet<String> suffixes = new HashSet(Arrays.asList(
             "d", "ud", "ld", "uld",
             "c", "uc", "lc", "ulc",

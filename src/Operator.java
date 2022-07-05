@@ -1,8 +1,12 @@
 import java.util.*;
 
 //Operator represents an operation between children
-public class Operator extends SyntaxNode implements Comparable<Operator>{
+//TODO operators: list all, list prefixes, list infixes, list postfixes, list precedence, add functions to access
+//TODO chained operators
+//TODO post/prefix distinction
+public class Operator extends SyntaxNode{
     private static class PrecedenceLevel {
+        public static int SPACING = 16, MIN_VALUE = Integer.MIN_VALUE;
         public PrecedenceLevel(double pos, String prev, String nxt) {
             position = pos;
             previous = prev;
@@ -11,28 +15,111 @@ public class Operator extends SyntaxNode implements Comparable<Operator>{
         public String previous = null, next = null;
         public double position;
     }
-    private static Map<String, PrecedenceLevel> precedences = new HashMap<>();
+    private static final String[][] builtinOperators = new String[][]{  //sorted by low to high precedence
+            {")", "}", "]", ":"},
+            {";"},
+            {"if", "while", "repeat", "for", "else", "nelse"},
+            {"with"},
+            {"<<", ">>"},   //TODO make eval left to right
+            {"="},
+            {"!="},
+            {"<", ">", "<=", ">="},
+            {","},
+            {"+", "-"},
+            {"%"},
+            {"*", "/"},
+            {"^"},
+            {"->"}
+            //TODO complete
+    };
+    private static final Set<String> infixes = new HashSet<>(Arrays.asList(
+            "else", "nelse",
+            "with",
+            ";",
+            "<<", ">>", "=", "!=", "<", ">", "<=", ">=",
+            "+", "-", "*", "/", "^",
+            "->"
+            //TODO complete
+    ));
+    private static final Set<String> prefixes = new HashSet<>(Arrays.asList(
+            "+", "-"
+            //TODO complete
+    ));
+    private static final Set<String> postfixes = new HashSet<>(Arrays.asList(
+            ";", "%"
+    ));
+    private static final List<Set<String>> chainGroups = Arrays.asList(
+            new HashSet<>(Arrays.asList(
+                    "<", "<=", "="
+            )),
+            new HashSet<>(Arrays.asList(
+                    ">", ">=", "="
+            )),
+            new HashSet<>(Arrays.asList(
+                    "else", "nelse"
+            )),
+            new HashSet<>(List.of(
+                    ","
+            )),
+            new HashSet<>(List.of(
+                    ";"
+            ))
+            //TODO complete chaining
+    );
+    private static final Map<String, PrecedenceLevel> precedences = new HashMap<>();
     static {
-        precedences.put(";", new PrecedenceLevel(Long.MAX_VALUE, "=", null));
-        precedences.put("=", new PrecedenceLevel(0, "->", ";"));
-        precedences.put("->", new PrecedenceLevel(Long.MIN_VALUE, null, "="));
+        int levelNum = PrecedenceLevel.MIN_VALUE;
+        String prevRepr = null;
+        PrecedenceLevel prevLevel = null;
+        for(String[] oplevel : builtinOperators) {
+            PrecedenceLevel level = new PrecedenceLevel(levelNum, prevRepr, null);
 
-        addOperatorBefore("=", "+");
-        addOperatorAt("+", "-");
-        addOperatorBefore("+", "*");
-        addOperatorAt("*", "/");
-    }
-    private static double indexOf(String op) {
-        return isOperator(op) ? precedences.get(op).position : -1;
+            for(String op : oplevel)
+                precedences.put(op, level);
+
+            if(prevLevel != null)
+                prevLevel.next = oplevel[0];
+            prevRepr = oplevel[0];
+            prevLevel = level;
+            levelNum += PrecedenceLevel.SPACING;
+        }
     }
     public static boolean isOperator(String op) {
         return precedences.containsKey(op);
     }
-    public static int compareTo(String a, String b) {
+    public static boolean isInfix(String op) {
+        return infixes.contains(op);
+    }
+    public static boolean isPrefix(String op) {
+        return prefixes.contains(op);
+    }
+    public static boolean isPostfix(String op) {
+        return postfixes.contains(op);
+    }
+    private static double indexOf(String op) {
+        return precedences.get(op).position;
+    }
+
+    private static int compareTo(String a, String b) {
         double t = indexOf(a);
         double o = indexOf(b);
         return Double.compare(t, o);
     }
+
+    private static boolean isRightToLeft(String op) {
+        return true;   //TODO complete
+    }
+    private static boolean isLeftToRight(String op) {
+        return !isRightToLeft(op);
+    }
+    public static boolean isBefore(String pred, String ref) {
+        int cmp = compareTo(pred, ref);
+        return cmp < 0 || cmp == 0 && isLeftToRight(pred);
+    }
+    public static boolean isAfter(String post, String ref) {
+        return !isBefore(ref, post);
+    }
+
     public static void addOperatorBefore(String ref, String op) {
         PrecedenceLevel topLevel = precedences.get(ref);
         PrecedenceLevel lowLevel = precedences.get(topLevel.previous);
@@ -46,24 +133,24 @@ public class Operator extends SyntaxNode implements Comparable<Operator>{
     public static void addOperatorAt(String ref, String op) {
         precedences.put(op, precedences.get(ref));
     }
-    private static List<Set<String>> chainGroups = Arrays.asList(
-            new HashSet<>(Arrays.asList(
-                    "<", "<=", "=", "=="
-            )),
-            new HashSet<>(Arrays.asList(
-                    ">", ">=", "=", "=="
-            ))
-            //TODO complete chaining
-    );
-    public static boolean isChainable(String op, String with) {
-        //TODO complete chaining
-        return false;
-//        for(var v : chainGroups) {
-//            if(v.contains(op) && v.contains(with))
-//                return true;
-//        }
-//        return false;
+    public static void addInfix(String op) {
+        infixes.add(op);
     }
+    public static void addPrefix(String op) {
+        prefixes.add(op);
+    }
+    public static void addPostfix(String op) {
+        postfixes.add(op);
+    }
+
+    public static boolean isChainable(String op, String with) {
+        for(var v : chainGroups) {
+            if(v.contains(op) && v.contains(with))
+                return true;
+        }
+        return false;
+    }
+
 
     private String name = null;
     private Type type = null;
@@ -113,6 +200,13 @@ public class Operator extends SyntaxNode implements Comparable<Operator>{
         children.add(child);
     }
 
+    public boolean isChained(){
+        for(SyntaxNode child : children)
+            if(child.getUsage() == Usage.CASE)
+                return true;
+        return false;
+    }
+
     public boolean isConstant() {
         return constant;
     }
@@ -135,12 +229,18 @@ public class Operator extends SyntaxNode implements Comparable<Operator>{
         complete = v;
     }
 
-    public int compareTo(Operator other) {
-        return compareTo(getName(), other.getName());
+    public boolean isBefore(Operator other) {
+        return isBefore(other.getName());
+    }
+    public boolean isBefore(String other) {
+        return compareTo(getName(), other) <= 0;
     }
 
-    public int compareTo(String other) {
-        return compareTo(getName(), other);
+    public boolean after(Operator other) {
+        return after(other.getName());
+    }
+    public boolean after(String other) {
+        return compareTo(getName(), other) > 0;
     }
 
     public String toString() {

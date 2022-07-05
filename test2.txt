@@ -1,0 +1,139 @@
+//loop: first and last
+for i in [0,10]:
+    if first: continue
+    else last: break
+;
+
+//hello world
+//Hello, world!
+IO write "Hello, World!\n";
+
+//control structures
+//hello1
+ctrl = 4;
+if ctrl > 3:
+	IO write "hello";
+else ctrl < -3:
+	IO write "hi";
+nelse:
+	IO write 1;
+else:
+	IO write 2;
+
+//loop
+//40320
+n = 8;
+for i in [1,n):
+	n << n*i;
+IO write n;
+
+//break/continue
+//12357
+for i in [0,100]: (
+	if i divisible by 4:
+		continue;
+	if i divisible by 6:
+		continue;
+	if i divisible by 8:
+		break;
+	IO write i
+);
+
+//simple mathematics
+//91
+x = 1 + 3 * 4;
+y = x * (x + 1);
+z = y / 2;
+IO write z;
+
+//collection values
+//101
+vals = (1,2,3)v;
+vals[2] << vals[1] - vals[0];
+vals[1] << vals[2] - vals[0];
+IO write (vals[0],vals[1],vals[2]);
+
+//function
+//1, 3, 5, 7, 9
+print_list(l) =
+	for n in l:
+	    if last?:
+	        IO write n
+	    else:
+	    	IO write (n, ", ")
+;
+print_list((1,3,5,7,9)v);
+
+//multiline function and multiple assignment
+//3
+binary_search(value, sorted_data_range) = (
+	first, last = sorted_data_range first, sorted_data_range last;
+	middle = avg(first, last);
+	if first = last: return void;
+ 	else:
+		@default equal
+		if value ?= middle value: 	return middle;
+		else less: 	return binary_search(value, first, middle);	//in lower half of data
+		else greater: 	return binary_search(value, middle, last);		//in upper half of data
+);
+IO write (binary_search(3, (1,2,3,4,5)v) value);
+
+
+//modifying function
+quick_sort{unsorted_data_first, unsorted_data_last}() = {
+	first, last = sorted_data_first, sorted_data_last;
+	filled_beginning, filled_end = begin, end = copy(first, last);
+	if first != last: {						//more than one element in data
+		reference = first;
+		while begin < end:
+			if begin value < middle value: begin << next();	//begin is on the correct side
+			else end value > middle value: end << next();	//end is on the correct side
+			else: begin, end << swap() 			//neither is on the correct side
+ 				with begin << next() with end << next;	//now both are on the correct side
+		middle = begin; //begin and end are now at the same position
+		first, middle << quick_sort(); middle, last << quick_sort();	//sort both sides
+	}
+};
+
+
+//structure
+@import IO, random
+
+guessing_game{
+	target = random([0, 100]r);
+	attempts = 0;
+
+	try(num) =
+		if num != target: attempts << increment();
+		return num ? = target;
+}
+
+convert{ guessing_game }(game_target) =
+	guessing_game with target << (game_target)
+;
+convert{ guessing_game }(target_range) =
+	guessing_game with target << random(target_range)
+;
+
+number_range = [0, 1000]r;
+
+repeat: {
+	number_game = number_range-> guessing_game;
+
+	IO write("guess a number", number_range, "\n");
+	guess = IO read() -> integer;
+	while comparison = number_game try guess != equal:
+		IO write("your guess is", comparison, "\n"),
+		guess << IO read()
+	;
+
+	IO write format("you guessed the number in %d tries\n", number_game attempts);
+	IO write "try again?[y/n]\n";
+
+	@default "y"
+	if IO read() -> string:
+		continue;
+	else:
+		break;
+}
+
