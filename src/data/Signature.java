@@ -1,7 +1,6 @@
 package data;
 
 //Function signature
-//TODO use composition for ret and a tuple for args
 public class Signature extends Type {
     Type functionReturn = null;
     Type functionParameter = null;

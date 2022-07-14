@@ -28,7 +28,7 @@ public class Literal extends SyntaxNode {
         //TODO write bytes
     }
 
-    //TODO custom suffixes
+    //TODO allow custom suffixes, and move suffix support to Type
     private static HashSet<String> suffixes = new HashSet(Arrays.asList(
             "d", "ud", "ld", "uld",
             "c", "uc", "lc", "ulc",

@@ -34,14 +34,17 @@ public class TokenReader {
         SyntaxNode ret = null;
         if(Group.isStartDelimiter(next))
             ret = readGroup(next);
-        else if(false/*baseAST.Operator.isPrefix(next)*/)
-            ret = null;    //TODO prefix
+        else if(Operator.isPrefix(next))
+            ret = new Operator(next){{
+                setPrefix(true);
+                addChild(get());
+            }};
         else if(Control.isControl(next))
             ret = readControl(next);
         else if(Literal.isLiteral(next))
             ret = readLiteral(next);
         else
-            ret = readIdentifier(next);//TODO complete get based on switch of symbol
+            ret = readIdentifier(next);
 
         while(!eof() && !Operator.isOperator(source.peek()))
             ret = new Field(ret, get());

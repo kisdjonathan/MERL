@@ -1,5 +1,7 @@
 package data;
 
+import baseAST.Literal;
+
 public class Type {
     public static class TypeConversion {
         public int distance = Integer.MAX_VALUE;
@@ -38,7 +40,7 @@ public class Type {
     }
 
     public static boolean isSuffix(String suffix) {
-        return false;   //TODO implement
+        return Literal.isSuffix(suffix);
     }
     public static Type decode(String suffix) {
         return null;    //TODO implement

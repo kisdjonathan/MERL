@@ -4,7 +4,6 @@ import data.Type;
 import data.Usage;
 
 //baseAST.Group serves only as a placeholder for the body in order to simulate precedence
-//TODO group suffixes & custom
 public class Group extends SyntaxNode{
     private String name = null;
     private Type type = null;

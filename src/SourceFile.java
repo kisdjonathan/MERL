@@ -44,7 +44,7 @@ public class SourceFile extends FunctionDefinition {
                 if(fnode.getVector().getUsage() == Usage.GROUP){
                     //TODO handle call/structure/index
                 }
-                else if(fnode.getOrigin().getUsage() == Usage.GROUP) {
+                else if(fnode.getOrigin().getUsage() == Usage.GROUP && Literal.isSuffix(fnode.getVector().getName())) {
                     //TODO handle group literal
                 }
                 else {

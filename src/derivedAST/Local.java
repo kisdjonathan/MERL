@@ -34,7 +34,7 @@ public class Local extends Group {
             return new TypeConversion(1, directConversion);
 
 
-        //TODO determine if source can be converted to dest and return MAX/2/3 for no/expand/series convertion
+        //TODO determine if source can be converted to dest and return MAX/2/3 for no/expand/series conversion
         //TODO implement for structures and function signatures
 
         return new TypeConversion();

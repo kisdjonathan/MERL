@@ -8,7 +8,6 @@ import java.util.*;
 //baseAST.Operator represents an operation between children
 //TODO operators: list all, list prefixes, list infixes, list postfixes, list precedence, add functions to access
 //TODO chained operators
-//TODO post/prefix distinction
 public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
     private static class PrecedenceLevel {
         public static int SPACING = 16, MIN_VALUE = Integer.MIN_VALUE;
