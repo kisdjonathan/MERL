@@ -1,4 +1,9 @@
-//Identifier stores the type and name of a variable name
+package baseAST;
+
+import data.Type;
+import data.Usage;
+
+//baseAST.Identifier stores the type and name of a variable name
 public class Identifier extends SyntaxNode {
     private String name = null;
     private Type type = null;

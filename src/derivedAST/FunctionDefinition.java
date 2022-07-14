@@ -1,7 +1,15 @@
+package derivedAST;
+
+import baseAST.SyntaxNode;
+import data.Signature;
+import data.TupleType;
+import data.Type;
+import data.Usage;
+
 import java.util.HashMap;
 import java.util.Map;
 
-//FunctionDefinition stores the definition of a function and makes the parameters and child declarations local to it
+//derivedAST.FunctionDefinition stores the definition of a function and makes the parameters and child declarations local to it
 //TODO make parameters locally available
 public class FunctionDefinition extends Local {
     private Tuple param = null, ret = null;
@@ -41,13 +49,12 @@ public class FunctionDefinition extends Local {
     }
 
     public Type getType() {
-        Type tparam = new Type(), tret = new Type();
+        TupleType tparam = new TupleType(), tret = new TupleType();
         int i = 0;for(SyntaxNode param : param)
-            tparam.putComponent(String.valueOf(i++), param.getType());
+            tparam.putComponent(param.getType());
         int j = 0;for(SyntaxNode ret : ret)
-            tret.putComponent(String.valueOf(j++), ret.getType());
-        Map<String, Type> fcomp = new HashMap<>(); fcomp.put("parameter", tparam); fcomp.put("return", tret);
-        return new Type("func", fcomp, true);
+            tret.putComponent(ret.getType());
+        return new Signature("func", tret, tparam);
     }
 
     public void setComplete(Boolean complete) {

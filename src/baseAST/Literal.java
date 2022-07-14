@@ -1,9 +1,14 @@
+package baseAST;
+
+import data.Type;
+import data.Usage;
+
 import java.io.BufferedWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 
-//Literal stores the type and name of a literal (numbers and strings)
-public class Literal extends SyntaxNode{
+//baseAST.Literal stores the type and name of a literal (numbers and strings)
+public class Literal extends SyntaxNode {
     private String name = null;
     private Type type = null;
 

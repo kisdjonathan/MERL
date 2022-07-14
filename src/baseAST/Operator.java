@@ -1,10 +1,15 @@
+package baseAST;
+
+import data.Type;
+import data.Usage;
+
 import java.util.*;
 
-//Operator represents an operation between children
+//baseAST.Operator represents an operation between children
 //TODO operators: list all, list prefixes, list infixes, list postfixes, list precedence, add functions to access
 //TODO chained operators
 //TODO post/prefix distinction
-public class Operator extends SyntaxNode{
+public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
     private static class PrecedenceLevel {
         public static int SPACING = 16, MIN_VALUE = Integer.MIN_VALUE;
         public PrecedenceLevel(double pos, String prev, String nxt) {
@@ -42,6 +47,7 @@ public class Operator extends SyntaxNode{
             //TODO complete
     ));
     private static final Set<String> prefixes = new HashSet<>(Arrays.asList(
+            "if", "for", "while", "repeat",
             "+", "-"
             //TODO complete
     ));
@@ -107,17 +113,19 @@ public class Operator extends SyntaxNode{
     }
 
     private static boolean isRightToLeft(String op) {
-        return true;   //TODO complete
+        return false;   //TODO complete
     }
     private static boolean isLeftToRight(String op) {
         return !isRightToLeft(op);
     }
+    //pred comes after ref in the line (eg 1+2*3 -> pred = *, ref = +)
     public static boolean isBefore(String pred, String ref) {
         int cmp = compareTo(pred, ref);
-        return cmp < 0 || cmp == 0 && isLeftToRight(pred);
+        return cmp > 0 || cmp == 0 && isRightToLeft(pred);
     }
+    //post comes after ref in the line (eg 1*2+3 -> ref = *, post = +)
     public static boolean isAfter(String post, String ref) {
-        return !isBefore(ref, post);
+        return !isBefore(post, ref);
     }
 
     public static void addOperatorBefore(String ref, String op) {
@@ -157,6 +165,7 @@ public class Operator extends SyntaxNode{
     private List<SyntaxNode> children = new ArrayList<>();
     private boolean constant = false;
     private boolean complete = false;
+    private boolean prefix = false;
 
     public Operator(){}
     public Operator(String name){
@@ -185,6 +194,9 @@ public class Operator extends SyntaxNode{
         val.setParent(this);
         return children.set(index, val);
     }
+    public void addChildren(Collection<SyntaxNode> collection) {
+        children.addAll(collection);
+    }
 
     public SyntaxNode removeChild(int index) {
         SyntaxNode ret = children.remove(index);
@@ -201,10 +213,14 @@ public class Operator extends SyntaxNode{
     }
 
     public boolean isChained(){
-        for(SyntaxNode child : children)
-            if(child.getUsage() == Usage.CASE)
-                return true;
         return false;
+    }
+
+    public boolean isPrefix() {
+        return prefix;
+    }
+    public void setPrefix(boolean v) {
+        prefix = v;
     }
 
     public boolean isConstant() {
@@ -245,5 +261,9 @@ public class Operator extends SyntaxNode{
 
     public String toString() {
         return super.toString() + children;
+    }
+
+    public Iterator<SyntaxNode> iterator() {
+        return children.listIterator();
     }
 }

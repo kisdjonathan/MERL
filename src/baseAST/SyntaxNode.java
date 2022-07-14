@@ -1,4 +1,8 @@
-//SyntaxNode represents any general component of the program
+package baseAST;
+
+import data.*;
+
+//baseAST.SyntaxNode represents any general component of the program
 //TODO remove commented code block after it is no longer needed
 public abstract class SyntaxNode {
     public abstract String getName();
@@ -23,11 +27,32 @@ public abstract class SyntaxNode {
     public void removeVariable(String name) {
         parent.removeVariable(name);
     }
-    public Identifier getVariable(String name) {
+    public boolean hasVariable(String name) {
+        return getVariable(name) != null;
+    }
+    public Variable getVariable(String name) {
         return parent.getVariable(name);
     }
     public void putVariable(String name, Variable value) {
         parent.putVariable(name, value);
+    }
+    public void putVariable(String name) {
+        putVariable(name, new Variable());
+    }
+    public boolean hasFunction(Signature signature) {
+        return getFunction(signature) != null;
+    }
+    public Type.TypeConversion getFunctionWithConversion(Signature signature) {
+        return parent.getFunctionWithConversion(signature);
+    }
+    public Function getFunction(Signature signature) {
+        return getFunctionWithConversion(signature).conversion;
+    }
+    public void putFunction(String name, Function value) {
+        putFunction(name, value);
+    }
+    public void putFunction(String name) {
+        putFunction(name, new Function());
     }
 
 
@@ -56,14 +81,14 @@ public abstract class SyntaxNode {
 
 
 //    private String name = null;
-//    private Usage usage = null;
-//    private SyntaxNode parent = null;
+//    private data.Usage usage = null;
+//    private baseAST.SyntaxNode parent = null;
 //    private Boolean complete = false;
-//    private List<SyntaxNode> children = new ArrayList<>();
+//    private List<baseAST.SyntaxNode> children = new ArrayList<>();
 //
-//    public SyntaxNode(){}
-//    public SyntaxNode(String name){this.name = name;}
-//    public SyntaxNode(String name, Usage usage) {
+//    public baseAST.SyntaxNode(){}
+//    public baseAST.SyntaxNode(String name){this.name = name;}
+//    public baseAST.SyntaxNode(String name, data.Usage usage) {
 //        this.name = name;
 //        this.usage = usage;
 //    }
@@ -75,50 +100,50 @@ public abstract class SyntaxNode {
 //        this.name = name;
 //    }
 //
-//    public Usage getUsage() {
+//    public data.Usage getUsage() {
 //        return usage;
 //    }
-//    public void setUsage(Usage usage) {
+//    public void setUsage(data.Usage usage) {
 //        this.usage = usage;
 //    }
 //
-//    public SyntaxNode getParent() {
+//    public baseAST.SyntaxNode getParent() {
 //        return parent;
 //    }
 //
-//    public List<SyntaxNode> getChildren() {
+//    public List<baseAST.SyntaxNode> getChildren() {
 //        return children;
 //    }
 //    public int size() {
 //        return children.size();
 //    }
 //
-//    public SyntaxNode getChild(int index) {
+//    public baseAST.SyntaxNode getChild(int index) {
 //        return children.get(index);
 //    }
-//    public SyntaxNode setChild(int index, SyntaxNode val) {
+//    public baseAST.SyntaxNode setChild(int index, baseAST.SyntaxNode val) {
 //        val.parent = this;
 //        return children.set(index, val);
 //    }
 //
-//    public SyntaxNode removeChild(int index) {
-//        SyntaxNode ret = children.remove(index);
+//    public baseAST.SyntaxNode removeChild(int index) {
+//        baseAST.SyntaxNode ret = children.remove(index);
 //        ret.parent = null;
 //        return ret;
 //    }
-//    public void addChild(int index, SyntaxNode child) {
+//    public void addChild(int index, baseAST.SyntaxNode child) {
 //        child.parent = this;
 //        children.add(index, child);
 //    }
-//    public void addChild(SyntaxNode child) {
+//    public void addChild(baseAST.SyntaxNode child) {
 //        child.parent = this;
 //        children.add(child);
 //    }
 //
-//    public Variable getVariable(String name) {
+//    public data.Variable getVariable(String name) {
 //        return parent.getVariable(name);
 //    }
-//    public void putVariable(String name, Variable value) {
+//    public void putVariable(String name, data.Variable value) {
 //        parent.putVariable(name, value);
 //    }
 //
@@ -126,13 +151,13 @@ public abstract class SyntaxNode {
 //        return false;   //for subclass use
 //    }
 //
-//    public boolean equals(Usage usage) {
+//    public boolean equals(data.Usage usage) {
 //        return this.usage == usage;
 //    }
-//    public boolean equals(Usage usage, String name) {
+//    public boolean equals(data.Usage usage, String name) {
 //        return this.usage == usage && (this.name == name || this.name.equals(name));
 //    }
-//    public boolean equals(SyntaxNode other) {
+//    public boolean equals(baseAST.SyntaxNode other) {
 //        return this == other;
 //    }
 //

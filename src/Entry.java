@@ -1,3 +1,5 @@
+import data.Variable;
+
 import java.io.File;
 import java.util.*;
 
@@ -11,9 +13,9 @@ public class Entry {
         List<PrecompiledSource> dependencies = new ArrayList<>();
         List<SourceFile> sources = new ArrayList<>();
 
-        Map<String, Identifier> undefinedVariables = new HashMap<>();
-        Map<String, Identifier> imports = new HashMap<>();
-        Map<String, Identifier> exports = new HashMap<>();
+        Map<String, Variable> undefinedVariables = new HashMap<>();
+        Map<String, Variable> imports = new HashMap<>();
+        Map<String, Variable> exports = new HashMap<>();
 
         Program build = new Program();
 

@@ -1,9 +1,11 @@
+package baseAST;
+
 import java.util.Arrays;
 import java.util.HashSet;
 
-//Control represents all control structures
+//baseAST.Control represents all control structures
 //TODO complete
-public class Control extends Operator{
+public class Control extends Operator {
     private static final HashSet<String> controls = new HashSet<>(Arrays.asList(
             "if", "repeat", "while", "for"
     ));

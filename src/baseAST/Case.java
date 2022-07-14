@@ -1,6 +1,10 @@
-//Case represents the cases of chained operators (ie </=/<=, else/nelse, etc) in control structures
+package baseAST;
+
+import data.Usage;
+
+//baseAST.Case represents the cases of chained operators (ie </=/<=, else/nelse, etc) in control structures
 //TODO complete
-public class Case extends Group{
+public class Case extends Group {
 
     public Case(String name, SyntaxNode value) {
         super(name);

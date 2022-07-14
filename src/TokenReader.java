@@ -1,3 +1,6 @@
+import baseAST.*;
+import data.Type;
+
 import java.io.File;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -5,12 +8,12 @@ import java.text.ParsePosition;
 //TokenReader reads in the source file as raw tokens (only Groups, Tuples from semicolons, loops, id, Literals, and function calls are returned)
 //read methods take in an additional pre-read argument
 //TODO complete
-//TODO delete commented code once complete
+//TODO move field and calls to get (rather than getOperator)
 public class TokenReader {
     public static void main(String[] args) {
         TokenReader reader = new TokenReader(new File("test.txt"));
-//        SyntaxNode x = reader.getIdentifier();
-//        SyntaxNode eqn = reader.getOperator(x);
+//        baseAST.SyntaxNode x = reader.getIdentifier();
+//        baseAST.SyntaxNode eqn = reader.getOperator(x);
 //        System.out.println(eqn);
         System.out.println(reader.readGroup(""));
 //        System.out.println(reader.get());
@@ -28,16 +31,22 @@ public class TokenReader {
             return null;
 
         String next = source.get();
+        SyntaxNode ret = null;
         if(Group.isStartDelimiter(next))
-            return readGroup(next);
-        else if(false/*Operator.isPrefix(next)*/)
-            return null;    //TODO prefix
+            ret = readGroup(next);
+        else if(false/*baseAST.Operator.isPrefix(next)*/)
+            ret = null;    //TODO prefix
         else if(Control.isControl(next))
-            return readControl(next);
+            ret = readControl(next);
         else if(Literal.isLiteral(next))
-            return readLiteral(next);
+            ret = readLiteral(next);
         else
-            return readIdentifier(next);//TODO complete get based on switch of symbol
+            ret = readIdentifier(next);//TODO complete get based on switch of symbol
+
+        while(!eof() && !Operator.isOperator(source.peek()))
+            ret = new Field(ret, get());
+
+        return ret;
     }
 
     //takes in first part of a literal
@@ -94,7 +103,7 @@ public class TokenReader {
         return Operator.isPostfix(oper) && (
                 eof() ||
                 Operator.isInfix(source.peek()) &&
-                        (!Operator.isPrefix(source.peek()) || Operator.isBefore(oper, source.peek()))
+                        (!Operator.isPrefix(source.peek()) || Operator.isAfter(source.peek(), oper))
         );
     }
     private Operator readPostfix(SyntaxNode predecessor, String postfix) {
@@ -114,12 +123,17 @@ public class TokenReader {
             SyntaxNode next = get();
 
             while (!eof()) {
-                if (!Operator.isOperator(source.peek()))
-                    next = new Field(next, get());
-                else if (Operator.isBefore(oper, source.peek()))
+                if (Operator.isBefore(source.peek(), oper))
                     next = getOperator(next);
                 else if(Operator.isChainable(oper, source.peek())) {
-                    ret.addChild(new Case(source.get(), next));
+                    if(!ret.isChained()) {
+                        ret = new ChainedOperator(oper);
+                        ret.addChild(predecessor);
+                        ((ChainedOperator)ret).addOperator(oper);
+                    }
+                    assert ret instanceof ChainedOperator;
+                    ret.addChild(next);
+                    ((ChainedOperator)ret).addOperator(source.get());
                     if(eof())
                         return ret;
                     else
@@ -136,7 +150,7 @@ public class TokenReader {
     }
 
     //takes in a SymbolReader (starting right after the starting delimiter) and generates nodes for which it constructs a local up to the next delimiter
-    private Group readGroup(String startDelim) {
+    public Group readGroup(String startDelim) {
         Group ret = new Group();
         if(!source.eof() && !Group.isEndDelimiter(source.peek())) {
             SyntaxNode body = get();
@@ -150,7 +164,7 @@ public class TokenReader {
         //TODO suffixes
         return ret;
     }
-    private Group readGroup(String startDelim, String endDelim) {
+    public Group readGroup(String startDelim, String endDelim) {
         Group ret = new Group();
         if(!source.eof() && !endDelim.equals(source.peek())) {
             SyntaxNode body = get();

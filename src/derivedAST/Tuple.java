@@ -1,8 +1,14 @@
+package derivedAST;
+
+import baseAST.SyntaxNode;
+import data.Type;
+import data.Usage;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-//Tuple represents an ordered comma or semicolon group
+//derivedAST.Tuple represents an ordered comma or semicolon group
 public class Tuple extends SyntaxNode implements Iterable<SyntaxNode>{
     private Type type = null;
     private List<SyntaxNode> children = new ArrayList<>();
