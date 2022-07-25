@@ -1,5 +1,6 @@
 import baseAST.*;
 import data.Type;
+import operations.Field;
 
 import java.io.File;
 import java.text.NumberFormat;

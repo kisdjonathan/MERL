@@ -3,6 +3,7 @@ import data.Signature;
 import data.Usage;
 import derivedAST.FunctionDefinition;
 import derivedAST.Tuple;
+import operations.Field;
 
 import java.io.File;
 import java.util.HashMap;

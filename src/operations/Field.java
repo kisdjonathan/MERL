@@ -1,4 +1,4 @@
-package baseAST;
+package operations;
 
 import baseAST.Operator;
 import baseAST.SyntaxNode;
@@ -22,7 +22,7 @@ public class Field extends SyntaxNode {
     }
 
     public Type getType() {
-        return ((StructureType)origin.getType()).getComponent(vector.getName());
+        return origin.getType().getComponent(vector.getName());
     }
 
     public SyntaxNode getOrigin() {

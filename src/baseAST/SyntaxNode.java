@@ -2,6 +2,8 @@ package baseAST;
 
 import data.*;
 
+import java.util.List;
+
 //baseAST.SyntaxNode represents any general component of the program
 public abstract class SyntaxNode {
     public abstract String getName();
@@ -47,8 +49,9 @@ public abstract class SyntaxNode {
     public Function getFunction(Signature signature) {
         return getFunctionWithConversion(signature).conversion;
     }
+    public List<Function> getFunction(String name) {return parent.getFunction(name);}
     public void putFunction(String name, Function value) {
-        putFunction(name, value);
+        parent.putFunction(name, value);
     }
     public void putFunction(String name) {
         putFunction(name, new Function());

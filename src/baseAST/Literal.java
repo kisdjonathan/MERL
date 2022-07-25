@@ -29,7 +29,7 @@ public class Literal extends SyntaxNode {
     }
 
     //TODO allow custom suffixes, and move suffix support to Type
-    private static HashSet<String> suffixes = new HashSet(Arrays.asList(
+    private static HashSet<String> suffixes = new HashSet<>(Arrays.asList(
             "d", "ud", "ld", "uld",
             "c", "uc", "lc", "ulc",
             "f", "uf", "lf", "ulf",

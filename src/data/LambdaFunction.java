@@ -1,8 +1,13 @@
 package data;
 
-import java.util.Collection;
+import baseAST.SyntaxNode;
 
-public class TuplePseudofunction extends Function{
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+//TODO complete
+public class LambdaFunction extends Function{
     private class PartialFunction {
         public int index = 0;
         public Function conversion = null;
@@ -13,5 +18,9 @@ public class TuplePseudofunction extends Function{
         }
     }
 
-    private Collection<PartialFunction> conversions;
+    private List<SyntaxNode> components = new ArrayList<>();
+
+    public void putComponent(SyntaxNode component) {
+        components.add(component);
+    }
 }

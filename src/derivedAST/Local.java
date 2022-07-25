@@ -11,7 +11,7 @@ import java.util.*;
 //TODO complete
 public class Local extends Group {
     private Map<String, Variable> variables = new HashMap<>();
-    private Map<String, Collection<Function>> functions = new HashMap<>();
+    private Map<String, List<Function>> functions = new HashMap<>();
     private SyntaxNode process = null;
 
     public Local(SyntaxNode definition) {
@@ -47,23 +47,28 @@ public class Local extends Group {
         variables.put(name, value);
     }
 
+    public List<Function> getFunction(String name) {
+        ArrayList<Function> ret = new ArrayList<>();
+        if(getParent() != null)
+            ret.addAll(getParent().getFunction(name));
+        ret.addAll(functions.get(name));
+        return ret;
+    }
+
     public TypeConversion getFunctionWithConversion(Signature name) {
         TypeConversion ret = new TypeConversion();
-        for(Function func : functions.get(name.getName())) {
-            TypeConversion conversion = match(name, func.getType());
+        for(ListIterator<Function> iter = functions.get(name.getName()).listIterator(); iter.hasNext();) {
+            Function func = iter.next();
+            TypeConversion argConversion = match(name.getParameter(), func.getType().getParameter());
+            TypeConversion retConversion = match(name.getReturn(), func.getType().getReturn());
             if(conversion.distance <= ret.distance) //<= because later-defined conversions with the same distance hold more significance
-                ret = conversion;
-        }
-
-        if(getParent() != null) {
-            TypeConversion alternate = getParent().getFunctionWithConversion(name);
-            if(alternate.distance < ret.distance)
-                return alternate;
+                ret = retConversion(func(argConversion)); //TODO represent a call as retConv(func(argConv))
         }
         return ret;
     }
     public void putFunction(String name, Function value) {
         if(!functions.containsKey(name))
             functions.put(name, new ArrayList<>());
+        functions.get(name).add(value);
     }
 }
