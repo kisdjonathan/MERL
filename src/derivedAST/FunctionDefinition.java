@@ -1,13 +1,7 @@
 package derivedAST;
 
 import baseAST.SyntaxNode;
-import data.Signature;
-import data.TupleType;
-import data.Type;
-import data.Usage;
-
-import java.util.HashMap;
-import java.util.Map;
+import data.*;
 
 //derivedAST.FunctionDefinition stores the definition of a function and makes the parameters and child declarations local to it
 //TODO make parameters locally available
@@ -15,10 +9,16 @@ public class FunctionDefinition extends Local {
     private Tuple param = null, ret = null;
     private boolean complete = false, constant = false;
 
-    public FunctionDefinition(Tuple param, Tuple ret, SyntaxNode definition){
+    public FunctionDefinition(){}
+    public FunctionDefinition(Tuple param, Tuple ret, Tuple definition){
         super(definition);
         this.param = param;
+        param.setParent(this);
         this.ret = ret;
+        ret.setParent(this);
+    }
+    public FunctionDefinition(Tuple param, Tuple ret){
+        this(param, ret, null);
     }
 
     public String getName() {
@@ -28,14 +28,18 @@ public class FunctionDefinition extends Local {
         return Usage.LOCALIZATION;
     }
 
-
     public Tuple getParam() {
         return param;
     }
-    public Tuple getRet() {
+    public void setParam(Tuple param) {
+        this.param = param;
+    }
+    public Tuple getReturn() {
         return ret;
     }
-
+    public void setReturn(Tuple ret) {
+        this.ret = ret;
+    }
 
     public boolean isConstant() {
         return constant;
@@ -49,15 +53,26 @@ public class FunctionDefinition extends Local {
     }
 
     public Type getType() {
-        TupleType tparam = new TupleType(), tret = new TupleType();
-        int i = 0;for(SyntaxNode param : param)
-            tparam.putComponent(param.getType());
-        int j = 0;for(SyntaxNode ret : ret)
-            tret.putComponent(ret.getType());
+        Type tparam = new Type(), tret = new Type();
+        for(SyntaxNode param : param)
+            tparam.putComponent(((FinalSyntaxNode)param).getType());
+        for(SyntaxNode ret : ret)
+            tret.putComponent(((FinalSyntaxNode)ret).getType());
         return new Signature("func", tret, tparam);
+    }
+
+    public void addComponent(FinalSyntaxNode component) {
+        ((Tuple)getBody()).addChild(component);
     }
 
     public void setComplete(Boolean complete) {
         this.complete = complete;
+    }
+
+    public FinalSyntaxNode getReplacement() {
+        setComplete(true);
+        param = param.getReplacement();
+        ret = ret.getReplacement();
+        return super.getReplacement();
     }
 }

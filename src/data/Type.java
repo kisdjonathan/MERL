@@ -1,13 +1,14 @@
 package data;
 
+import baseAST.Identifier;
 import baseAST.Literal;
-import baseAST.SyntaxNode;
-import operations.Cast;
-import operations.Field;
+import derivedAST.LambdaFunctionDefinition;
+import derivedAST.Tuple;
+import derivedAST.Variable;
 
 import java.util.*;
 
-public class Type {
+public class Type implements Iterable<Type>{
     public static class SplitPair {
         public int referencePosition, destinationPosition;
         public Type referenceType, destinationType;
@@ -20,15 +21,15 @@ public class Type {
     }
 
     public static Type  //TODO L make exhaustive
-            BOOL    = new StructureType("bool"),
-            INT     = new StructureType("int"),
-            INTL    = new StructureType("intl"),
-            CHAR    = new StructureType("char"),
-            CHARL   = new StructureType("charl"),
-            FLOAT   = new StructureType("float"),
-            FLOATL  = new StructureType("floatl"),
-            STR     = new StructureType("str"),
-            STRL    = new StructureType("strl");
+            BOOL    = new Type("bool"),
+            INT     = new Type("int"),
+            INTL    = new Type("intl"),
+            CHAR    = new Type("char"),
+            CHARL   = new Type("charl"),
+            FLOAT   = new Type("float"),
+            FLOATL  = new Type("floatl"),
+            STR     = new Type("str"),
+            STRL    = new Type("strl");
 
     private String name = null;
     private List<Type> composition = new ArrayList<>();
@@ -44,6 +45,13 @@ public class Type {
     public String getName() {
         return name;
     }
+    public Variable getVariable() {
+        return value;
+    }
+    public void setVariable(Variable value) {
+        this.value = value;
+    }
+
 
     public void putComponent(Type type) {
         composition.add(type);
@@ -84,20 +92,26 @@ public class Type {
         return ret;
     }
 
-    public Function directConvert(Type dest) {
-        return null;    //TODO
-    }
-
-    public Function collectConvert(Type dest) {
-        return null;    //TODO
+    public LambdaFunctionDefinition collectConversion(Type from) {
+        Variable onlyArg = new Variable("arg", from);
+        Variable onlyRet = new Variable("ret", this);
+        LambdaFunctionDefinition ret = new LambdaFunctionDefinition(new Tuple(){{addChild(onlyArg);}}, new Tuple(){{addChild(onlyRet);}});
+        //TODO
+        return ret;
     }
 
     public Type scatter() {
-        return null;    //TODO
+        //TODO
+        return null;
     }
 
     public boolean equals(Type o) {
-        return (name == null || o.name == null || name.equals(o.name)) && composition.equals(o.composition);
+        //TODO make equals return false when either o or this is a collection and the other is not, even if they both have the same composition
+        return composition.equals(o.composition) && namePositions.equals(o.namePositions);
+    }
+
+    public Iterator<Type> iterator() {
+        return composition.listIterator();
     }
 
     public static boolean isSuffix(String suffix) {

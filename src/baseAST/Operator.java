@@ -1,11 +1,14 @@
 package baseAST;
 
+import data.Signature;
 import data.Type;
 import data.Usage;
+import derivedAST.*;
+import operations.*;
 
 import java.util.*;
 
-//baseAST.Operator represents an operation between children
+//Operator represents an operation between children
 //TODO operators: list all, list prefixes, list infixes, list postfixes, list precedence, add functions to access
 //TODO chained operators
 public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
@@ -36,6 +39,15 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             {"->"}
             //TODO complete
     };
+    private static final Map<String, String> builtinOperatorNames = new HashMap<>(){{
+        put("+", "add");
+        put("-", "sub");
+        put("*", "mul");
+        put("/", "div");
+        put("^", "exp");
+        put("->", "cast");
+        //TODO complete
+    }};
     private static final Set<String> infixes = new HashSet<>(Arrays.asList(
             "else", "nelse",
             "with",
@@ -160,10 +172,8 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
 
 
     private String name = null;
-    private Type type = null;
     private List<SyntaxNode> children = new ArrayList<>();
     private boolean constant = false;
-    private boolean complete = false;
     private boolean prefix = false;
 
     public Operator(){}
@@ -188,6 +198,9 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
 
     public SyntaxNode getChild(int index) {
         return children.get(index);
+    }
+    public List<SyntaxNode> getChildren() {
+        return children;
     }
     public SyntaxNode setChild(int index, SyntaxNode val) {
         val.setParent(this);
@@ -229,19 +242,79 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         constant = v;
     }
 
-    public boolean isComplete() {
-        return complete;
-    }
+    public FinalSyntaxNode getReplacement() {
+        if(name.equals("<<") || name.equals("=")) {
+            //TODO variable declaration
+            //TODO function declaration
+            SyntaxNode origin = getChild(0);
+            if(origin.equals(Usage.IDENTIFIER) && !hasVariable(origin.getName())) {
+                return new Assign(origin.getReplacement(), getChild(1).getReplacement()); //TODO L tuple assignment, structure assignment
+            }
+            if(origin.equals(Usage.FIELD) && ((Consecutive)origin).isFunction()) {
+                //function
+                //there are no assignments to function returns however,
+                //TODO implement comparison on function calls (rn a(b)=c will always set a(b) to c, and not compare a(b) to c)
 
-    public void setType(Type type) {
-        this.type = type;
-    }
-    public Type getType() {
-        return type;
-    }
+                FunctionDefinition ret = new FunctionDefinition();
 
-    public void setComplete(boolean v) {
-        complete = v;
+                SyntaxNode temp = ((Consecutive)origin).getVector(); temp.setParent(ret);
+                ret.setParam(Tuple.asTuple(temp.getReplacement())); ret.getParam().evaluate();
+
+                temp = getChild(1); temp.setParent(ret);
+                ret.setBody(Tuple.asTuple(temp.getReplacement()));  ret.getBody().evaluate();  //TODO L as of now, only return statements can give a return; add assign returns and lambda returns
+
+                ret.evaluate();
+                return ret;
+            }
+        }
+        else if(name.equals(">>")) {
+            Contextualization ret = new Contextualization();
+            FinalSyntaxNode context = getChild(0).getReplacement();
+            for(Type v : context.getType())
+                ret.putVariable(v.getName(), v.getVariable());
+            SyntaxNode temp = getChild(1); temp.setParent(ret);
+            ret.setBody(temp.getReplacement());
+
+            ret.evaluate();
+            return ret;
+        }
+        FinalSyntaxNode origin = getChild(0).getReplacement(), vector = getChild(1).getReplacement();
+        Function f = getFunction(new Signature(builtinOperatorNames.get(name), origin.getType(), vector.getType()));
+        if(f != null)
+            return new Call(f, new Tuple(Arrays.asList(origin, vector)));
+        FinalSyntaxNode ret =
+        switch (name) {
+            case "<<" ->
+                    new Assign(origin, vector);
+            case "=", "<", ">", "<=", ">=" ->
+                    new ComparisonInfix(name, origin, vector);
+            case "and", "or", "nor", "xor", "xnor" ->
+                    new BooleanInfix(name, origin, vector);
+            case "not" ->
+                    null;
+
+            case "$and", "$or", "$nor", "$xor", "$xnor", "$up", "$down", "$left", "$right" ->
+                    new BitwiseInfix(name, origin, vector);
+            case "$not" ->
+                    null;
+
+            case "+", "-", "*", "/", "^", "modulo", "remainder" ->
+                    new ArithmeticInfix(name, origin, vector);
+            case "->" ->
+                    new Cast(origin, vector.getType());
+            case "with" ->
+                    null;   //TODO L
+            case "of" ->  //aka without
+                    null;   //TODO L
+            case "in" ->
+                    null;   //TODO L
+
+            //TODO
+            default ->
+                null;    //TODO
+        };
+        ret.evaluate();
+        return ret;
     }
 
     public boolean isBefore(Operator other) {

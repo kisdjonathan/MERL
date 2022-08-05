@@ -1,17 +1,24 @@
 package operations;
 
+import derivedAST.FinalSyntaxNode;
 import baseAST.Literal;
-import baseAST.Operator;
-import baseAST.SyntaxNode;
 import data.Type;
 
-public class Index extends Operator {
-
-    public Index(SyntaxNode ref, SyntaxNode pos) {
-        addChild(ref);
-        addChild(pos);
+//builtin indexing provided for array/list types only
+public class Index extends BuiltinOperation {
+    public Index(FinalSyntaxNode ref, FinalSyntaxNode pos) {
+        setOrigin(ref);
+        setVector(pos);
     }
-    public Index(SyntaxNode ref, int pos) {
+    public Index(FinalSyntaxNode ref, int pos) {
         this(ref, new Literal(String.valueOf(pos), Type.INT));
+    }
+
+    public Type getType() {
+        return getOrigin().getType().getComponent(0);
+    }
+
+    public String getName() {
+        return "index";
     }
 }

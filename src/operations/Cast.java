@@ -1,26 +1,31 @@
 package operations;
 
-import baseAST.Operator;
+import derivedAST.FinalSyntaxNode;
 import baseAST.SyntaxNode;
-import data.Function;
-import data.LambdaFunction;
+import derivedAST.Function;
+import derivedAST.LambdaFunctionDefinition;
 import data.Signature;
 import data.Type;
+import derivedAST.Tuple;
+import derivedAST.Variable;
 
 import java.util.Collection;
-import java.util.List;
 
-//TODO implement flexible casting
-public class Cast extends Operator {
-    private SyntaxNode source;
-    private Type dest;
+public class Cast extends BuiltinOperation {
+    private Type ref, dest;
 
-    public Cast(SyntaxNode from, Type to) {
-        source = from;
+    public Cast(FinalSyntaxNode from, Type to) {
+        setOrigin(from);
+        ref = from.getType();
         dest = to;
     }
 
-    public Cast(SyntaxNode from, Type to, SyntaxNode parent) {
+    public Cast(Type from, Type to) {
+        ref = from;
+        dest = to;
+    }
+
+    public Cast(FinalSyntaxNode from, Type to, SyntaxNode parent) {
         this(from, to);
         setParent(parent);
     }
@@ -28,37 +33,49 @@ public class Cast extends Operator {
     public Type getType() {
         return dest;
     }
+    public void setType(Type t) {
+        dest = t;
+    }
 
-    public Function getConversion() {
-        if(source.getType().equals(dest)) {
-            return source.getType().directConvert(dest);
+    public String getName() {
+        return "cast";
+    }
+
+    //returns SyntaxNode that produces a converted form of source from ref to dest when evaluated
+    public FinalSyntaxNode getReplacement() {
+        Function directConversion = getFunction(new Signature(dest, ref));
+        if(directConversion != null) {
+            return new Call(directConversion, getOrigin()).getReplacement();
+            //cases where {a,b,c}-->{x,y,z} is defined
+        }
+
+        if(ref.equals(dest)) {
+            return new Copy(getOrigin()).getReplacement();
             //cases where {a,b,c}-->{a,b,c}, where types a==a..., regardless of whether each position is named or
             //where {a A, b B, c C}-->{c C, b B, a A}, regardless of order
         }
 
-        Function directConversion = getFunction(new Signature(dest, source.getType()));
-        if(directConversion != null) {
-            return directConversion;
-            //cases where {a,b,c}-->{x,y,z} is defined
-        }
-
-        LambdaFunction piecewiseConversion = new LambdaFunction();
-        Collection<Type.SplitPair> parts = source.getType().splitMatchWith(dest);
+        Variable singleRet = new Variable("ret"); singleRet.setType(dest);
+        LambdaFunctionDefinition piecewiseConversion = new LambdaFunctionDefinition(new Tuple(), new Tuple(){{addChild(singleRet);}});
+        Tuple body = new Tuple();
+        Collection<Type.SplitPair> parts = ref.splitMatchWith(dest);
         for(Type.SplitPair part : parts) {
-            Cast test = new Cast(new Index(source, part.referencePosition), part.destinationType, this);
+            Cast test = new Cast(new Index(getOrigin(), part.referencePosition), part.destinationType, this);
             if(!test.isDefined()) {
                 piecewiseConversion = null;
                 break;
             }
-            piecewiseConversion.putComponent(test);
+            body.addChild(new Assign(new Index(singleRet, part.destinationPosition), test));
             //cases where {a,b,c}-->{x,y,z}, where a-->x... are defined, regardless of whether each position is named or
             //where {a A, b B, c C}-->{z C, y B, x A}, regardless of order
         }
-        if(!parts.isEmpty() && piecewiseConversion != null)
-            return piecewiseConversion;
+        if(!parts.isEmpty() && piecewiseConversion != null) {
+            piecewiseConversion.setBody(body);
+            return new Call(piecewiseConversion, new Tuple());
+        }
 
-        if(source.getType().scatter().equals(dest.scatter())) {
-            return dest.collectConvert(source.getType().scatter());
+        if(ref.scatter().equals(dest.scatter())) {
+            return null;    //TODO
             //cases where foundational primitive composition matches
         }
 
@@ -67,9 +84,6 @@ public class Cast extends Operator {
     }
 
     public boolean isDefined() {
-        return getConversion() != null;
-    }
-
-    private void generateConversion(){
+        return this.getReplacement() != null;
     }
 }

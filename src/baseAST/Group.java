@@ -2,6 +2,8 @@ package baseAST;
 
 import data.Type;
 import data.Usage;
+import derivedAST.FinalSyntaxNode;
+import derivedAST.Local;
 
 //baseAST.Group serves only as a placeholder for the body in order to simulate precedence
 public class Group extends SyntaxNode{
@@ -41,6 +43,28 @@ public class Group extends SyntaxNode{
     }
     public void setBody(SyntaxNode body) {
         this.body = body;
+        body.setParent(this);
+    }
+
+    public FinalSyntaxNode getReplacement() {
+        switch (getName()) {
+            case "()":
+                return body.getReplacement();
+            case "[]":
+                return null;    //TODO L list
+            case "{}":
+                return null;    //TODO L set
+            case "(]":
+                return null;    //TODO L range
+            case "[)":
+                return null;    //TODO L range
+            default:    //EOF
+                return new Local(){{
+                    body.setParent(this);
+                    setBody(body.getReplacement());
+                    getBody().evaluate();
+                }};
+        }
     }
 
     public boolean isConstant() {

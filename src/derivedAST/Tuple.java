@@ -9,14 +9,20 @@ import java.util.Iterator;
 import java.util.List;
 
 //derivedAST.Tuple represents an ordered comma or semicolon group
-public class Tuple extends SyntaxNode implements Iterable<SyntaxNode>{
-    private Type type = null;
-    private List<SyntaxNode> children = new ArrayList<>();
+public class Tuple extends FinalSyntaxNode implements Iterable<FinalSyntaxNode>{
+    public static Tuple asTuple(FinalSyntaxNode node) {
+        if(node.getUsage() == Usage.TUPLE)
+            return (Tuple)node;
+        else
+            return new Tuple(){{addChild(node);}};
+    }
+
+    private List<FinalSyntaxNode> children = new ArrayList<>();
     private boolean constant = false;
     private boolean complete = false;
 
     public Tuple(){}
-    public Tuple(List<SyntaxNode> children){
+    public Tuple(List<FinalSyntaxNode> children){
         this.children = children;
     }
 
@@ -35,24 +41,24 @@ public class Tuple extends SyntaxNode implements Iterable<SyntaxNode>{
         return children.size();
     }
 
-    public SyntaxNode getChild(int index) {
+    public FinalSyntaxNode getChild(int index) {
         return children.get(index);
     }
-    public SyntaxNode setChild(int index, SyntaxNode val) {
+    public FinalSyntaxNode setChild(int index, FinalSyntaxNode val) {
         val.setParent(this);
         return children.set(index, val);
     }
 
-    public SyntaxNode removeChild(int index) {
-        SyntaxNode ret = children.remove(index);
+    public FinalSyntaxNode removeChild(int index) {
+        FinalSyntaxNode ret = children.remove(index);
         ret.setParent(null);
         return ret;
     }
-    public void addChild(int index, SyntaxNode child) {
+    public void addChild(int index, FinalSyntaxNode child) {
         child.setParent(this);
         children.add(index, child);
     }
-    public void addChild(SyntaxNode child) {
+    public void addChild(FinalSyntaxNode child) {
         child.setParent(this);
         children.add(child);
     }
@@ -60,25 +66,26 @@ public class Tuple extends SyntaxNode implements Iterable<SyntaxNode>{
     public boolean isConstant() {
         return constant;
     }
-    public void setConstant(boolean v) {
-        constant = v;
-    }
-
     public boolean isComplete() {
         return complete;
     }
-    public void setComplete(boolean v) {
-        complete = v;
-    }
 
-    public void setType(Type type) {
-        this.type = type;
-    }
     public Type getType() {
-        return type;
+        Type ret = new Type();
+        for(SyntaxNode child : children)
+            ret.putComponent(((FinalSyntaxNode) child).getType());
+        return ret;
     }
 
-    public Iterator<SyntaxNode> iterator() {
+    public Tuple getReplacement() {
+        for(int i = 0; i < children.size(); ++i)
+            children.set(i, children.get(i).getReplacement());
+        //TODO determine constant
+        complete = true;
+        return this;
+    }
+
+    public Iterator<FinalSyntaxNode> iterator() {
         return children.listIterator();
     }
 }

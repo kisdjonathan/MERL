@@ -1,6 +1,7 @@
 import baseAST.*;
 import data.Type;
-import operations.Field;
+import baseAST.Consecutive;
+import derivedAST.FinalSyntaxNode;
 
 import java.io.File;
 import java.text.NumberFormat;
@@ -16,7 +17,10 @@ public class TokenReader {
 //        baseAST.SyntaxNode x = reader.getIdentifier();
 //        baseAST.SyntaxNode eqn = reader.getOperator(x);
 //        System.out.println(eqn);
-        System.out.println(reader.readGroup(""));
+        SyntaxNode read = reader.readGroup("");
+        FinalSyntaxNode analyzed = read.getReplacement();
+        analyzed.evaluate();
+        System.out.println(analyzed);
 //        System.out.println(reader.get());
     }
 
@@ -48,7 +52,7 @@ public class TokenReader {
             ret = readIdentifier(next);
 
         while(!eof() && !Operator.isOperator(source.peek()))
-            ret = new Field(ret, get());
+            ret = new Consecutive(ret, get());
 
         return ret;
     }
@@ -83,7 +87,7 @@ public class TokenReader {
         return readIdentifier(source.get());
     }
 
-    public SyntaxNode readControl(String id) {
+    public Control readControl(String id) {
         SyntaxNode control = readGroup("", ":").getBody();
         SyntaxNode body = get();
         while(Operator.isOperator(source.peek()) &&
@@ -92,14 +96,15 @@ public class TokenReader {
 
         Control ret = new Control(id, control, body);
 
-        //else/nelse
         if(Control.isControl(id))
-            while(Control.isCase(source.peek()))
-                ret.addChild(getControl());
+            while(Control.isCase(source.peek())) {                //else/nelse
+                Control chain = getControl();
+                ret.addChild(chain.getName(), chain.getControl(), chain.getInitial());
+            }
 
         return ret;
     }
-    public SyntaxNode getControl() {
+    public Control getControl() {
         return readControl(source.get());
     }
 
@@ -131,13 +136,10 @@ public class TokenReader {
                     next = getOperator(next);
                 else if(Operator.isChainable(oper, source.peek())) {
                     if(!ret.isChained()) {
-                        ret = new ChainedOperator(oper);
-                        ret.addChild(predecessor);
-                        ((ChainedOperator)ret).addOperator(oper);
+                        ret = new ChainedOperator() {{addChild(oper, predecessor);}};
                     }
                     assert ret instanceof ChainedOperator;
-                    ret.addChild(next);
-                    ((ChainedOperator)ret).addOperator(source.get());
+                    ((ChainedOperator)ret).addChild(source.get(), next);
                     if(eof())
                         return ret;
                     else

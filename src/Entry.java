@@ -1,4 +1,4 @@
-import data.Variable;
+import derivedAST.Variable;
 
 import java.io.File;
 import java.util.*;

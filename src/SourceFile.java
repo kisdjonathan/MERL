@@ -1,9 +1,8 @@
 import baseAST.*;
-import data.Signature;
 import data.Usage;
 import derivedAST.FunctionDefinition;
 import derivedAST.Tuple;
-import operations.Field;
+import baseAST.Consecutive;
 
 import java.io.File;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class SourceFile extends FunctionDefinition {
                 //TODO add called function signature to vars
                 break;
             case FIELD:
-                Field fnode = (Field) node;
+                Consecutive fnode = (Consecutive) node;
                 if(fnode.getVector().getUsage() == Usage.GROUP){
                     //TODO handle call/structure/index
                 }
@@ -60,21 +59,6 @@ public class SourceFile extends FunctionDefinition {
                 if(((Operator) node).isChained()) {
                     assert node instanceof ChainedOperator;
                     //TODO handle specific chaining (eg comparison chains and tuples)
-                }
-                switch (node.getName()) {
-                    case " ":
-                    case ">>":  //TODO complete
-                    case "<<":  //TODO complete
-                    case "=":
-                        SyntaxNode dest = ((Operator) node).getChild(0);
-                        if(dest.getUsage() != Usage.IDENTIFIER || hasVariable(dest.getName())) {
-                            ((Operator) node).setType(node.getFunction((Signature) node.getType()).getType().getReturn());
-                            return node;
-                        }
-                        else{
-                            //TODO declaration
-                        }
-                        //TODO complete
                 }
                 //TODO handle type based on oper
                 break;

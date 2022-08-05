@@ -1,11 +1,18 @@
 package baseAST;
 
+import data.Type;
+import data.Usage;
+import derivedAST.FinalSyntaxNode;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
-//baseAST.Control represents all control structures
+//Control represents all control structures
+//TODO L currently, the Control only allows for return values if the types of all cases are the same
 //TODO complete
-public class Control extends Operator {
+public class Control extends FinalSyntaxNode {
     private static final HashSet<String> controls = new HashSet<>(Arrays.asList(
             "if", "repeat", "while", "for"
     ));
@@ -19,13 +26,37 @@ public class Control extends Operator {
         return cases.contains(s);
     }
 
+    public static class Case {
+        public String name;
+        public SyntaxNode control, body;
+
+        public Case(String name, SyntaxNode control, SyntaxNode value) {
+            this.name = name;
+            this.control = control;
+            this.body = value;
+        }
+    }
+
+    private String name = null;
     private SyntaxNode control = null;
+    private SyntaxNode initial = null;
+    private List<Case> chained = new ArrayList<>();
 
     public Control(){}
     public Control(String name, SyntaxNode control, SyntaxNode body) {
-        super(name);
+        this.name = name;
         setControl(control);
-        addChild(body);
+        setInitial(body);
+    }
+
+    public void addChild(String name, SyntaxNode control, SyntaxNode body) {
+        chained.add(new Case(name, control, body));
+    }
+    public void addElse(SyntaxNode control, SyntaxNode body) {
+        chained.add(new Case("else", control, body));
+    }
+    public void addNesle(SyntaxNode control, SyntaxNode body) {
+        chained.add(new Case("nelse", control, body));
     }
 
     public SyntaxNode getControl() {
@@ -33,6 +64,26 @@ public class Control extends Operator {
     }
     public void setControl(SyntaxNode control) {
         this.control = control;
+    }
+
+    public SyntaxNode getInitial() {
+        return initial;
+    }
+    public void setInitial(SyntaxNode initial) {
+        this.initial = initial;
+    }
+
+    public String getName() {
+        return name;
+    }
+    public Usage getUsage() {
+        return Usage.CONTROL;
+    }
+    public Type getType() {
+        if(name.equals("if"))
+            return ((FinalSyntaxNode)initial).getType();
+        else
+            return new Type("list"){{putComponent(((FinalSyntaxNode)initial).getType());}}; //TODO check list construction
     }
 
     public String toString() {
