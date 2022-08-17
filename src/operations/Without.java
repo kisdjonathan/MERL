@@ -2,12 +2,14 @@ package operations;
 
 import baseAST.Operator;
 import baseAST.SyntaxNode;
+import derivedAST.FinalSyntaxNode;
 
-public class Without extends Operator {
-    SyntaxNode value = null;
-
+public class Without extends With {
     public Without(){}
-    public Without(SyntaxNode val){
-        value = val;
+
+    public Without(FinalSyntaxNode add, FinalSyntaxNode val){
+        setOrigin(add);
+        setVector(val);
     }
+
 }

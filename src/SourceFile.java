@@ -1,7 +1,7 @@
 import baseAST.*;
 import data.Usage;
 import derivedAST.FunctionDefinition;
-import derivedAST.Tuple;
+import baseTypes.Tuple;
 import baseAST.Consecutive;
 
 import java.io.File;

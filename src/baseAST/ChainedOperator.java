@@ -1,7 +1,7 @@
 package baseAST;
 
 import derivedAST.FinalSyntaxNode;
-import derivedAST.Tuple;
+import baseTypes.Tuple;
 import operations.BooleanInfix;
 import operations.ComparisonInfix;
 
@@ -39,11 +39,8 @@ public class ChainedOperator extends Operator {
         }
         else if(operators.contains(";") || operators.contains(",")) {
             return new Tuple(){{
-                for(SyntaxNode child : getChildren()) {
-                    FinalSyntaxNode temp = child.getReplacement();
-                    addChild(temp);
-                    temp.evaluate();
-                }
+                for(SyntaxNode child : getChildren())
+                    addChild(child);
             }};
         }
         else if(operators.contains("=")) {

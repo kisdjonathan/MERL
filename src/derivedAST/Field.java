@@ -1,19 +1,36 @@
 package derivedAST;
 
 import baseAST.SyntaxNode;
-import data.Type;
+import baseTypes.BasicType;
 import data.Usage;
 
 public class Field extends FinalSyntaxNode {
-    private FinalSyntaxNode origin, vector;
+    private FinalSyntaxNode origin = null, vector = null;
 
+    public Field() {}
     public Field(FinalSyntaxNode parent, FinalSyntaxNode field){
-        origin = parent;
-        vector = field;
+        setOrigin(parent);
+        setVector(field);
     }
 
+    public void setOrigin(FinalSyntaxNode origin) {
+        this.origin = origin;
+        origin.setParent(this);
+    }
+    public void setOrigin(SyntaxNode origin) {
+        origin.setParent(this);
+        setOrigin(origin.getEvaluatedReplacement());
+    }
     public FinalSyntaxNode getOrigin() {
         return origin;
+    }
+    public void setVector(FinalSyntaxNode vector) {
+        this.vector = vector;
+        vector.setParent(this);
+    }
+    public void setVector(SyntaxNode vector) {
+        vector.setParent(this);
+        setVector(vector.getEvaluatedReplacement());
     }
     public FinalSyntaxNode getVector() {
         return vector;
@@ -25,8 +42,12 @@ public class Field extends FinalSyntaxNode {
     public Usage getUsage() {
         return Usage.FIELD;
     }
-    public Type getType() {
-        return origin.getType().getComponent(vector.getName());
+
+    public BasicType getBaseType() {
+        return origin.getBaseType().getField(vector.getName()).getBaseType();
+    }
+    public boolean typeEquals(FinalSyntaxNode other) {
+        return origin.getBaseType().getField(vector.getName()).typeEquals(other);
     }
 
     public String toString() {

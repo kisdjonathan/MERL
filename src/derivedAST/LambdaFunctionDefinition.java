@@ -1,12 +1,6 @@
 package derivedAST;
 
-import baseAST.SyntaxNode;
-import derivedAST.FunctionDefinition;
-import derivedAST.Tuple;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import baseTypes.Tuple;
 
 //TODO L complete
 public class LambdaFunctionDefinition extends FunctionDefinition{

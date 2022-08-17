@@ -1,5 +1,5 @@
 import derivedAST.FunctionDefinition;
-import derivedAST.Tuple;
+import baseTypes.Tuple;
 
 //Program represents the entire program (all system arguments, settings, and all sources)
 //TODO complete

@@ -1,8 +1,7 @@
 package baseAST;
 
-import data.Type;
-import data.Usage;
 import derivedAST.FinalSyntaxNode;
+import data.Usage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +11,7 @@ import java.util.List;
 //Control represents all control structures
 //TODO L currently, the Control only allows for return values if the types of all cases are the same
 //TODO complete
-public class Control extends FinalSyntaxNode {
+public class Control extends SyntaxNode {
     private static final HashSet<String> controls = new HashSet<>(Arrays.asList(
             "if", "repeat", "while", "for"
     ));
@@ -79,11 +78,9 @@ public class Control extends FinalSyntaxNode {
     public Usage getUsage() {
         return Usage.CONTROL;
     }
-    public Type getType() {
-        if(name.equals("if"))
-            return ((FinalSyntaxNode)initial).getType();
-        else
-            return new Type("list"){{putComponent(((FinalSyntaxNode)initial).getType());}}; //TODO check list construction
+
+    public FinalSyntaxNode getReplacement() {
+        return null;    //TODO
     }
 
     public String toString() {

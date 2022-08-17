@@ -1,7 +1,7 @@
 import baseAST.*;
-import data.Type;
-import baseAST.Consecutive;
+import baseTypes.BasicType;
 import derivedAST.FinalSyntaxNode;
+import baseAST.Consecutive;
 
 import java.io.File;
 import java.text.NumberFormat;
@@ -61,17 +61,17 @@ public class TokenReader {
     public Literal readLiteral(String value) {
         if(value.equals("\"")){ //string
             value = source.get();
-            if(Type.isSuffix(source.peek()))
-                return new Literal(value, Type.decode(source.get()));
+            if(BasicType.isSuffix(source.peek()))
+                return new Literal(value, BasicType.decode(source.get()));
             else
-                return new Literal(value, Type.STR);
+                return new Literal(value, BasicType.STR);
         }
         else if(Character.isDigit(value.charAt(0))){    //number
             ParsePosition pos = new ParsePosition(0);
             Number n = NumberFormat.getInstance().parse(value, pos);    //TODO implement hexadecimal numbers (issue with in-number letters, consider 0x)
             String suffix = value.substring(pos.getIndex());
 
-            return new Literal(n.toString(), Type.decode(suffix));
+            return new Literal(n.toString(), BasicType.decode(suffix));
         }
         else
             return null;

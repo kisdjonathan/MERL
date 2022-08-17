@@ -1,14 +1,13 @@
 package baseAST;
 
-import data.Type;
-import data.Usage;
 import derivedAST.FinalSyntaxNode;
+import data.Usage;
 import derivedAST.Local;
 
 //baseAST.Group serves only as a placeholder for the body in order to simulate precedence
 public class Group extends SyntaxNode{
     private String name = null;
-    private Type type = null;
+    private FinalSyntaxNode type = null;
     private SyntaxNode body = null;
     private boolean constant = false;
     private boolean complete = false;
@@ -32,10 +31,10 @@ public class Group extends SyntaxNode{
     }
 
     public boolean isEmpty() {
-        return false;
+        return body != null;
     }
     public int size() {
-        return 1;
+        return body == null ? 0 : 1;
     }
 
     public SyntaxNode getBody() {
@@ -60,9 +59,7 @@ public class Group extends SyntaxNode{
                 return null;    //TODO L range
             default:    //EOF
                 return new Local(){{
-                    body.setParent(this);
-                    setBody(body.getReplacement());
-                    getBody().evaluate();
+                    setBody(body);
                 }};
         }
     }
@@ -78,10 +75,10 @@ public class Group extends SyntaxNode{
         return complete;
     }
 
-    public void setType(Type type) {
+    public void setType(FinalSyntaxNode type) {
         this.type = type;
     }
-    public Type getType() {
+    public FinalSyntaxNode getType() {
         return type;
     }
 

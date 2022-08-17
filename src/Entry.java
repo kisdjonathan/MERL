@@ -28,7 +28,7 @@ public class Entry {
         }
 
         for(var entry : exports.entrySet()) {
-            build.putVariable(entry.getKey(), entry.getValue());    //TODO check if affects existing local entry?
+            build.putVariable(entry.getValue());    //TODO check if affects existing local entry?
         }
         for(SourceFile source : sources)
             source.analyze();

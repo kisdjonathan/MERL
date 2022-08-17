@@ -1,15 +1,14 @@
 package derivedAST;
 
 import baseAST.SyntaxNode;
-import data.Type;
 import data.Usage;
 
 //Variable stores the data related to a variable (relative memory position, type, specific functions)
 public class Variable extends FinalSyntaxNode {
     private String name = null;
-    private Type type = null;
+    private FinalSyntaxNode type = null;
 
-    public Variable(String name, Type type) {
+    public Variable(String name, FinalSyntaxNode type) {
         this.name = name;
         this.type = type;
     }
@@ -34,14 +33,14 @@ public class Variable extends FinalSyntaxNode {
         return true;
     }
 
-    public void assertField(String name, Type t) {
+    public void assertField(String name, FinalSyntaxNode t) {
 
     }
 
-    public Type getType() {
+    public FinalSyntaxNode getType() {
         return type;
     }
-    public void setType(Type t) {
+    public void setType(FinalSyntaxNode t) {
         type = t;
     }
 }

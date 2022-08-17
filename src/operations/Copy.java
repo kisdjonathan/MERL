@@ -4,7 +4,7 @@ import derivedAST.FinalSyntaxNode;
 
 public class Copy extends BuiltinOperation {
     public Copy(FinalSyntaxNode v) {
-        setOrigin(v);
+        setFirst(v);
     }
 
     public String getName() {

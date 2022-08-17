@@ -1,6 +1,8 @@
 package baseAST;
 
-import data.Type;
+import baseTypes.BasicType;
+import baseTypes.Tuple;
+import derivedAST.FinalSyntaxNode;
 import data.Usage;
 import derivedAST.*;
 import operations.Call;
@@ -23,9 +25,6 @@ public class Consecutive extends SyntaxNode {
     public Usage getUsage() {
         return Usage.FIELD;
     }
-    public Type getType() {
-        return ((FinalSyntaxNode)origin).getType().getComponent(vector.getName());
-    }
 
     public SyntaxNode getOrigin() {
         return origin;
@@ -35,12 +34,19 @@ public class Consecutive extends SyntaxNode {
     }
 
     //true if: IDENTIFIER (..)
-    //TODO L allow for structures and return-type defined to qualify as well
-    public boolean isFunction() {
+    //TODO L allow for structures on functions
+    public boolean isInferredFunction() {
         return vector.equals(Usage.GROUP, "()") && origin.equals(Usage.IDENTIFIER);
     }
 
-    //true if: ANY (...)
+    //true if: IDENTIFIER {..} (..)
+    public boolean isTypedFunction() {
+        return vector.equals(Usage.GROUP, "()") &&
+                origin.equals(Usage.FIELD) &&
+                ((Consecutive)origin).isStructure();
+    }
+
+    //true if: ANY (..)
     public boolean isCall() {
         return vector.equals(Usage.GROUP, "()");
     }
@@ -50,12 +56,12 @@ public class Consecutive extends SyntaxNode {
         return vector.equals(Usage.GROUP, "{}") && origin.equals(Usage.IDENTIFIER);
     }
 
-    //true if: (...) {...}
+    //true if: (..) {..}
     public boolean isInferredLambda() {
         return vector.equals(Usage.GROUP, "{}") && origin.equals(Usage.GROUP, "()");
     }
 
-    //true if {...}(...){...}
+    //true if {..}(..){..}
     public boolean isTypedLambda(){
         return vector.equals(Usage.GROUP, "{}") &&
                 origin.equals(Usage.FIELD) &&
@@ -70,7 +76,7 @@ public class Consecutive extends SyntaxNode {
 
     //true if (...)SUFFIX
     public boolean isGroupedLiteral() {
-        return origin.equals(Usage.GROUP) && vector.equals(Usage.IDENTIFIER) && Type.isSuffix(vector.getName());
+        return origin.equals(Usage.GROUP) && vector.equals(Usage.IDENTIFIER) && BasicType.isSuffix(vector.getName());
     }
 
     public FinalSyntaxNode getReplacement() {
@@ -96,7 +102,7 @@ public class Consecutive extends SyntaxNode {
 
         return new Field(origin.getReplacement(), vector.getReplacement());
     }
-    //TODO L in the future, add functionality for return type and argument type (including inferred) overloading without hindering the ability to define functions
+    //TODO L in the future, add functionality for return type and argument type overloading (including determining inferred types)
     //TODO L ie in Operator, where this is called, replace with a completely separate function which evaluates the body first
 
     public String toString() {

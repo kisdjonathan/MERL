@@ -1,7 +1,8 @@
 package derivedAST;
 
 import baseAST.SyntaxNode;
-import data.Type;
+import baseTypes.Function;
+import baseTypes.Tuple;
 import data.Usage;
 
 import java.util.*;
@@ -18,33 +19,33 @@ public class Local extends FinalSyntaxNode {
         setBody(definition);
     }
 
-    public SyntaxNode getProcess() {
-        return process;
-    }
-
     public String getName() {
         return "local";
     }
     public Usage getUsage() {
         return Usage.GROUP;
     }
-    public Type getType() {
-        return ((FinalSyntaxNode)process).getType();
-    }
-
-    public Variable getVariable(String name) {
-        return variables.get(name);
-    }
-    public void putVariable(String name, Variable value) {
-        variables.put(name, value);
+    public FinalSyntaxNode getType() {
+        return process.getType();
     }
 
     public void setBody(FinalSyntaxNode body) {
         process = body;
         body.setParent(this);
     }
+    public void setBody(SyntaxNode body) {
+        body.setParent(this);
+        setBody(body.getEvaluatedReplacement());
+    }
     public FinalSyntaxNode getBody() {
         return process;
+    }
+
+    public Variable getVariable(String name) {
+        return variables.get(name);
+    }
+    public void putVariable(Variable value) {
+        variables.put(value.getName(), value);
     }
 
     public List<Function> getFunction(String name) {
@@ -54,10 +55,9 @@ public class Local extends FinalSyntaxNode {
         ret.addAll(functions.get(name));
         return ret;
     }
-
-    public void putFunction(String name, Function value) {
-        if(!functions.containsKey(name))
-            functions.put(name, new ArrayList<>());
-        functions.get(name).add(value);
+    public void putFunction(Function value) {
+        if(!functions.containsKey(value.getName()))
+            functions.put(value.getName(), new ArrayList<>());
+        functions.get(value.getName()).add(value);
     }
 }

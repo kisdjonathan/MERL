@@ -1,40 +1,30 @@
 package operations;
 
-import derivedAST.FinalSyntaxNode;
 import baseAST.SyntaxNode;
-import derivedAST.Function;
-import derivedAST.LambdaFunctionDefinition;
-import data.Signature;
-import data.Type;
-import derivedAST.Tuple;
-import derivedAST.Variable;
+import baseTypes.Function;
+import baseTypes.Tuple;
+import derivedAST.FinalSyntaxNode;
+import derivedAST.*;
+import baseTypes.Pair;
 
 import java.util.Collection;
 
 public class Cast extends BuiltinOperation {
-    private Type ref, dest;
-
-    public Cast(FinalSyntaxNode from, Type to) {
+    public Cast(FinalSyntaxNode from, FinalSyntaxNode to) {
         setOrigin(from);
-        ref = from.getType();
-        dest = to;
+        setVector(to);
     }
 
-    public Cast(Type from, Type to) {
-        ref = from;
-        dest = to;
-    }
-
-    public Cast(FinalSyntaxNode from, Type to, SyntaxNode parent) {
+    public Cast(FinalSyntaxNode from, FinalSyntaxNode to, SyntaxNode parent) {
         this(from, to);
         setParent(parent);
     }
 
-    public Type getType() {
-        return dest;
+    public FinalSyntaxNode getType() {
+        return getOrigin();
     }
-    public void setType(Type t) {
-        dest = t;
+    public void setType(FinalSyntaxNode t) {
+        setOrigin(t);
     }
 
     public String getName() {
@@ -43,23 +33,23 @@ public class Cast extends BuiltinOperation {
 
     //returns SyntaxNode that produces a converted form of source from ref to dest when evaluated
     public FinalSyntaxNode getReplacement() {
-        Function directConversion = getFunction(new Signature(dest, ref));
+        Function directConversion = getFunction("convert", Tuple.asTuple(getOrigin()), Tuple.asTuple(getVector()));
         if(directConversion != null) {
             return new Call(directConversion, getOrigin()).getReplacement();
             //cases where {a,b,c}-->{x,y,z} is defined
         }
 
-        if(ref.equals(dest)) {
+        if(getOrigin().equals(getVector())) {
             return new Copy(getOrigin()).getReplacement();
             //cases where {a,b,c}-->{a,b,c}, where types a==a..., regardless of whether each position is named or
             //where {a A, b B, c C}-->{c C, b B, a A}, regardless of order
         }
 
-        Variable singleRet = new Variable("ret"); singleRet.setType(dest);
+        Variable singleRet = new Variable("ret"); singleRet.setType(getVector());
         LambdaFunctionDefinition piecewiseConversion = new LambdaFunctionDefinition(new Tuple(), new Tuple(){{addChild(singleRet);}});
         Tuple body = new Tuple();
-        Collection<Type.SplitPair> parts = ref.splitMatchWith(dest);
-        for(Type.SplitPair part : parts) {
+        Collection<FinalSyntaxNode.SplitPair> parts = ref.splitMatchWith(dest);
+        for(FinalSyntaxNode.SplitPair part : parts) {
             Cast test = new Cast(new Index(getOrigin(), part.referencePosition), part.destinationType, this);
             if(!test.isDefined()) {
                 piecewiseConversion = null;

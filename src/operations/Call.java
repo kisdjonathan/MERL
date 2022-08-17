@@ -1,10 +1,11 @@
 package operations;
 
-import data.Type;
-import data.Usage;
+import baseTypes.InferredType;
+import baseTypes.Structure;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.Function;
-import derivedAST.Tuple;
+import data.Usage;
+import baseTypes.Function;
+import baseTypes.Tuple;
 
 //Call stores information of a function call
 //TODO L for now, Call is expected to return the values of ret, but in the future, allow Call to write directly to ret
@@ -15,6 +16,18 @@ public class Call extends BuiltinOperation {
     public Call(FinalSyntaxNode func, FinalSyntaxNode args) {
         setOrigin(func);
         setVector(Tuple.asTuple(args));
+        setType(new InferredType());
+    }
+
+    public Call(FinalSyntaxNode func, FinalSyntaxNode args, FinalSyntaxNode type) {
+        setOrigin(func);
+        setVector(Tuple.asTuple(args));
+        setType(type);
+    }
+
+    public Call(Function func, FinalSyntaxNode args) {
+        this((FinalSyntaxNode)func, args);
+        setType(func.getType());
     }
 
     public Usage getUsage() {
@@ -22,8 +35,5 @@ public class Call extends BuiltinOperation {
     }
     public String getName() {
         return "call";
-    }
-    public Type getType() {
-        return ((Function) getOrigin()).getType().getReturn();
     }
 }

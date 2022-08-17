@@ -1,7 +1,8 @@
 package baseAST;
 
-import data.Signature;
-import data.Type;
+import baseTypes.Function;
+import baseTypes.Tuple;
+import derivedAST.FinalSyntaxNode;
 import data.Usage;
 import derivedAST.*;
 import operations.*;
@@ -48,6 +49,12 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         put("->", "cast");
         //TODO complete
     }};
+    private String getBuiltin(String opName) {
+        String ret = builtinOperatorNames.get(opName);
+        if(ret == null)
+            return opName;
+        return ret;
+    }
     private static final Set<String> infixes = new HashSet<>(Arrays.asList(
             "else", "nelse",
             "with",
@@ -242,44 +249,58 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         constant = v;
     }
 
+    private boolean isUndefinedVariable(SyntaxNode val) {
+        if(val.getUsage() == Usage.IDENTIFIER && !hasVariable(val.getName()))
+            return true;
+        if(val.getUsage() == Usage.FIELD && ((Consecutive)val).isStructure())
+            return true;
+        return false;
+    }
+
     public FinalSyntaxNode getReplacement() {
-        if(name.equals("<<") || name.equals("=")) {
-            //TODO variable declaration
-            //TODO function declaration
-            SyntaxNode origin = getChild(0);
-            if(origin.equals(Usage.IDENTIFIER) && !hasVariable(origin.getName())) {
-                return new Assign(origin.getReplacement(), getChild(1).getReplacement()); //TODO L tuple assignment, structure assignment
-            }
-            if(origin.equals(Usage.FIELD) && ((Consecutive)origin).isFunction()) {
+        if(name.equals("<<")) {
+            SyntaxNode dest = getChild(0);
+            SyntaxNode source = getChild(1);
+            if(isUndefinedVariable(dest))
+                return new Assign(dest.getEvaluatedReplacement(), source.getEvaluatedReplacement()).evaluated(); //TODO L tuple assignment
+            if(source.getUsage() == Usage.FIELD && ((Consecutive)source).isCall()) {
                 //function
-                //there are no assignments to function returns however,
-                //TODO implement comparison on function calls (rn a(b)=c will always set a(b) to c, and not compare a(b) to c)
 
-                FunctionDefinition ret = new FunctionDefinition();
+                Consecutive cval = (Consecutive) dest;
+                String name;
+                SyntaxNode param, rets;
+                if(cval.isInferredFunction()) {
+                    name = cval.getOrigin().getName();
+                    param = cval.getVector();
+                    rets = new Group();
+                } else if(cval.isTypedFunction()) {
+                    name = ((Consecutive)cval.getOrigin()).getOrigin().getName();
+                    rets = ((Consecutive)cval.getOrigin()).getVector();
+                    param = cval.getVector();
+                } else {
+                    throw new UnsupportedOperationException("can not assign to function return");
+                }
 
-                SyntaxNode temp = ((Consecutive)origin).getVector(); temp.setParent(ret);
-                ret.setParam(Tuple.asTuple(temp.getReplacement())); ret.getParam().evaluate();
+                Function ret = new Function(name);
+                ret.setArgs(param);
+                ret.setRets(rets);
 
-                temp = getChild(1); temp.setParent(ret);
-                ret.setBody(Tuple.asTuple(temp.getReplacement()));  ret.getBody().evaluate();  //TODO L as of now, only return statements can give a return; add assign returns and lambda returns
+                ret.setBody(source);  //TODO L as of now, only assigns can give a return; add returns and lambda evaluations
 
-                ret.evaluate();
-                return ret;
+                putFunction(ret);
+                return ret.evaluated();
             }
         }
         else if(name.equals(">>")) {
             Contextualization ret = new Contextualization();
-            FinalSyntaxNode context = getChild(0).getReplacement();
-            for(Type v : context.getType())
-                ret.putVariable(v.getName(), v.getVariable());
-            SyntaxNode temp = getChild(1); temp.setParent(ret);
-            ret.setBody(temp.getReplacement());
+            ret.setOrigin(getChild(0));
+            ret.setVector(getChild(1));
 
-            ret.evaluate();
-            return ret;
+            return ret.evaluated();
         }
-        FinalSyntaxNode origin = getChild(0).getReplacement(), vector = getChild(1).getReplacement();
-        Function f = getFunction(new Signature(builtinOperatorNames.get(name), origin.getType(), vector.getType()));
+        //TODO should the replacement be evaluated here(below)?
+        FinalSyntaxNode origin = getChild(0).getEvaluatedReplacement(), vector = getChild(1).getEvaluatedReplacement();
+        Function f = getFunction(getBuiltin(name), Tuple.asTuple(origin), Tuple.asTuple(vector));
         if(f != null)
             return new Call(f, new Tuple(Arrays.asList(origin, vector)));
         FinalSyntaxNode ret =
@@ -303,9 +324,9 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             case "->" ->
                     new Cast(origin, vector.getType());
             case "with" ->
-                    null;   //TODO L
+                    new With(origin, vector);
             case "of" ->  //aka without
-                    null;   //TODO L
+                    new Without(origin, vector);
             case "in" ->
                     null;   //TODO L
 
@@ -313,8 +334,7 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             default ->
                 null;    //TODO
         };
-        ret.evaluate();
-        return ret;
+        return ret.evaluated();
     }
 
     public boolean isBefore(Operator other) {

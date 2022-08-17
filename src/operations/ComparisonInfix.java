@@ -1,16 +1,15 @@
 package operations;
 
-import data.Type;
 import derivedAST.FinalSyntaxNode;
 
 public class ComparisonInfix extends GeneralizedBuiltinOperation{
     public ComparisonInfix(String op, FinalSyntaxNode a, FinalSyntaxNode b) {
         setName(op);
-        setOrigin(a);
-        setVector(b);
+        setFirst(a);
+        setSecond(b);
     }
 
-    public Type getType() {
-        return Type.BOOL;
+    public FinalSyntaxNode getType() {
+        return FinalSyntaxNode.BOOL;
     }
 }

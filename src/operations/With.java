@@ -1,15 +1,12 @@
 package operations;
 
-import baseAST.Operator;
-import baseAST.SyntaxNode;
 import derivedAST.FinalSyntaxNode;
 
 public class With extends BuiltinOperation {
-    private FinalSyntaxNode value = null;
-
     public With(){}
-    public With(FinalSyntaxNode val){
-        value = val;
+    public With(FinalSyntaxNode val, FinalSyntaxNode add){
+        setOrigin(val);
+        setVector(add);
     }
 
     public String getName() {
