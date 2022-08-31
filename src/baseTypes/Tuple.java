@@ -2,16 +2,12 @@ package baseTypes;
 
 import baseAST.SyntaxNode;
 import data.Usage;
-import derivedAST.ExternalFunction;
-import derivedAST.ExternalVariable;
 import derivedAST.FinalSyntaxNode;
-import operations.Index;
+import derivedAST.Variable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiFunction;
 
 //TODO special type here
 
@@ -92,6 +88,9 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
                 return false;
         return true;
     }
+    public BasicType getBaseType() {
+        return this;
+    }
 
     public boolean isIndexed() {
         return true;
@@ -106,10 +105,10 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
         return null;
     }
 
-    public List<ExternalVariable> getFields() {
+    public List<Variable> getFields() {
         return null;
     }
-    public List<ExternalFunction> getFunctions() {
+    public List<Function> getFunctions() {
         return null;
     }
 //    protected FinalSyntaxNode typeConvert(FinalSyntaxNode self, FinalSyntaxNode other, FinalSyntaxNode context) {

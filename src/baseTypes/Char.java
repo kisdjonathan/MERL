@@ -6,11 +6,10 @@ import derivedAST.Variable;
 
 import java.util.List;
 
-//TODO
-public class Str extends FinalSyntaxNode implements BasicType{
+public class Char extends FinalSyntaxNode implements BasicType{
 
     public String getName() {
-        return "str";
+        return "char";
     }
     public Usage getUsage() {
         return Usage.TYPE;
@@ -25,7 +24,7 @@ public class Str extends FinalSyntaxNode implements BasicType{
     }
 
     public boolean isIndexed() {
-        return true;
+        return false;
     }
     public boolean isFielded() {
         return false;

@@ -1,24 +1,13 @@
 package baseTypes;
 
 import baseAST.Literal;
-import baseAST.SyntaxNode;
-import data.Usage;
-import derivedAST.ExternalFunction;
-import derivedAST.ExternalVariable;
 import derivedAST.FinalSyntaxNode;
-import operations.Call;
-import operations.Cast;
+import derivedAST.Variable;
 
 import java.util.*;
 
 //TODO complete
 public interface BasicType{
-    public static BasicType  //TODO L make exhaustive
-            CHAR    = new BasicType("char"),
-            CHARL   = new BasicType("charl"),
-            FLOAT   = new BasicType("float"),
-            FLOATL  = new BasicType("floatl");
-
     boolean typeEquals(FinalSyntaxNode other);
 
     boolean isIndexed();
@@ -33,8 +22,8 @@ public interface BasicType{
     FinalSyntaxNode getField(String name);
 
     //TODO
-    List<ExternalVariable> getFields();
-    List<ExternalFunction> getFunctions();
+    List<Variable> getFields();
+    List<Function> getFunctions();
 
     static boolean isSuffix(String suffix) {
         return Literal.isSuffix(suffix);
@@ -43,12 +32,12 @@ public interface BasicType{
         //TODO L make exhaustive
         return switch (suffix.toLowerCase()) {
             case "b" -> new Bool();
-            case "c" -> CHAR;
-            case "lc" -> CHARL;
+            case "c" -> new Char();
+            case "lc" -> new Char();
             case "d" -> new Int();
             case "ld" -> new Int();
-            case "f" -> FLOAT;
-            case "lf" -> FLOATL;
+            case "f" -> new Float();
+            case "lf" -> new Float();
             case "s" -> new Str();
             case "ls" -> new Str();
             default -> null;

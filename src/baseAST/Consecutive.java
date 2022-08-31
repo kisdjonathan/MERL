@@ -1,6 +1,8 @@
 package baseAST;
 
 import baseTypes.BasicType;
+import baseTypes.Function;
+import baseTypes.InferredType;
 import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
@@ -85,17 +87,18 @@ public class Consecutive extends SyntaxNode {
         else if(isIndex())
             return new Index(origin.getReplacement(), ((Group)vector).getBody().getReplacement());
         else if(isTypedLambda())
-            return new LambdaFunctionDefinition(
+            return new Function(
+                    null,
                     Tuple.asTuple(((Consecutive)origin).getVector().getReplacement()),
-                    Tuple.asTuple(((Consecutive)origin).getOrigin().getReplacement()),
-                    Tuple.asTuple(vector.getReplacement())
-            );
-        else if(isInferredLambda())
-            return new LambdaFunctionDefinition(
-                    Tuple.asTuple(origin.getReplacement())
-                    , null,
-                    Tuple.asTuple(vector.getReplacement())
-            );
+                    Tuple.asTuple(((Consecutive)origin).getOrigin().getReplacement())) {{
+            setBody(vector.getReplacement());
+        }};
+        else if(isInferredLambda()) new Function(
+                null,
+                Tuple.asTuple(origin.getReplacement()),
+                null/*TODO function inference return*/) {{
+            setBody(vector.getReplacement());
+        }};
         else if(isGroupedLiteral()) {
             return origin.getReplacement();//TODO L
         }

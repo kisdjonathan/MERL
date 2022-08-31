@@ -63,6 +63,9 @@ public class Function extends Local implements BasicType {
             return false;
         return args.typeEquals(fother.getArgs()) && rets.typeEquals(fother.getRets());
     }
+    public BasicType getBaseType() {
+        return this;
+    }
 
     public boolean isIndexed() {
         return false;
@@ -77,10 +80,10 @@ public class Function extends Local implements BasicType {
         return null;
     }
 
-    public List<ExternalVariable> getFields() {
+    public List<Variable> getFields() {
         return null;
     }
-    public List<ExternalFunction> getFunctions() {
+    public List<Function> getFunctions() {
         return null;
     }
 //    protected FinalSyntaxNode typeConvert(FinalSyntaxNode self, FinalSyntaxNode other, FinalSyntaxNode context) {
@@ -98,4 +101,10 @@ public class Function extends Local implements BasicType {
 //        }
 //        return null;
 //    }
+
+
+    public FinalSyntaxNode evaluated() {
+        //TODO L evaluate types for returns and parameters
+        return this;
+    }
 }
