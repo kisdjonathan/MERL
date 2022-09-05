@@ -28,12 +28,12 @@ public class Structure extends Tuple {
         return setChild(namePositions.get(name), val);
     }
 
-    public Collection<Pair> pairFieldsIn(FinalSyntaxNode ref, FinalSyntaxNode t) {
-        if(size() > t.size())
-            return null;
-        List<Pair> ret = new ArrayList<>();
-        for(String s : namePositions.keySet())
-            ret.add(new Pair(new Field(ref, s), new Field(t, s)));
-        return  ret;
-    }
+//    public Collection<Pair> pairFieldsIn(FinalSyntaxNode ref, FinalSyntaxNode t) {
+//        if(size() > t.size())
+//            return null;
+//        List<Pair> ret = new ArrayList<>();
+//        for(String s : namePositions.keySet())
+//            ret.add(new Pair(new Field(ref, s), new Field(t, s)));
+//        return  ret;
+//    }
 }

@@ -203,24 +203,15 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         return children.size();
     }
 
-    public SyntaxNode getChild(int index) {
-        return children.get(index);
+    public void addChildren(Collection<SyntaxNode> collection) {
+        children.addAll(collection);
     }
     public List<SyntaxNode> getChildren() {
         return children;
     }
-    public SyntaxNode setChild(int index, SyntaxNode val) {
-        val.setParent(this);
-        return children.set(index, val);
-    }
-    public void addChildren(Collection<SyntaxNode> collection) {
-        children.addAll(collection);
-    }
 
-    public SyntaxNode removeChild(int index) {
-        SyntaxNode ret = children.remove(index);
-        ret.setParent(null);
-        return ret;
+    public SyntaxNode getChild(int index) {
+        return children.get(index);
     }
     public void addChild(int index, SyntaxNode child) {
         child.setParent(this);
@@ -229,6 +220,15 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
     public void addChild(SyntaxNode child) {
         child.setParent(this);
         children.add(child);
+    }
+    public SyntaxNode setChild(int index, SyntaxNode val) {
+        val.setParent(this);
+        return children.set(index, val);
+    }
+    public SyntaxNode removeChild(int index) {
+        SyntaxNode ret = children.remove(index);
+        ret.setParent(null);
+        return ret;
     }
 
     public boolean isChained(){

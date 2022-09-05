@@ -34,18 +34,20 @@ public class Control extends SyntaxNode {
             this.control = control;
             this.body = value;
         }
+
+        public String toString() {
+            return name + "(" + control + "){" + body + "}";
+        }
     }
 
     private String name = null;
     private SyntaxNode control = null;
-    private SyntaxNode initial = null;
+    private SyntaxNode body = null;
     private List<Case> chained = new ArrayList<>();
 
     public Control(){}
-    public Control(String name, SyntaxNode control, SyntaxNode body) {
+    public Control(String name) {
         this.name = name;
-        setControl(control);
-        setInitial(body);
     }
 
     public void addChild(String name, SyntaxNode control, SyntaxNode body) {
@@ -54,7 +56,7 @@ public class Control extends SyntaxNode {
     public void addElse(SyntaxNode control, SyntaxNode body) {
         chained.add(new Case("else", control, body));
     }
-    public void addNesle(SyntaxNode control, SyntaxNode body) {
+    public void addNelse(SyntaxNode control, SyntaxNode body) {
         chained.add(new Case("nelse", control, body));
     }
 
@@ -65,11 +67,11 @@ public class Control extends SyntaxNode {
         this.control = control;
     }
 
-    public SyntaxNode getInitial() {
-        return initial;
+    public SyntaxNode getBody() {
+        return body;
     }
-    public void setInitial(SyntaxNode initial) {
-        this.initial = initial;
+    public void setBody(SyntaxNode body) {
+        this.body = body;
     }
 
     public String getName() {
@@ -84,6 +86,6 @@ public class Control extends SyntaxNode {
     }
 
     public String toString() {
-        return "(" + control + ")" + super.toString();
+        return super.toString() + "(" + control + "){" + body + "}" + chained;
     }
 }

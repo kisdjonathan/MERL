@@ -28,7 +28,7 @@ public interface BasicType{
     static boolean isSuffix(String suffix) {
         return Literal.isSuffix(suffix);
     }
-    static BasicType decode(String suffix) {
+    static FinalSyntaxNode decode(String suffix) {
         //TODO L make exhaustive
         return switch (suffix.toLowerCase()) {
             case "b" -> new Bool();

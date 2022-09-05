@@ -1,6 +1,8 @@
+package Compiler;
+
 import baseAST.*;
 import baseTypes.BasicType;
-import derivedAST.FinalSyntaxNode;
+import baseTypes.Str;
 import baseAST.Consecutive;
 
 import java.io.File;
@@ -12,19 +14,6 @@ import java.text.ParsePosition;
 //TODO complete
 //TODO move field and calls to get (rather than getOperator)
 public class TokenReader {
-    public static void main(String[] args) {
-        TokenReader reader = new TokenReader(new File("test.txt"));
-//        baseAST.SyntaxNode x = reader.getIdentifier();
-//        baseAST.SyntaxNode eqn = reader.getOperator(x);
-//        System.out.println(eqn);
-        SyntaxNode read = reader.readGroup("");
-        FinalSyntaxNode analyzed = read.getReplacement();
-        analyzed.evaluate();
-        System.out.println(analyzed);
-//        System.out.println(reader.get());
-    }
-
-
     private final SymbolReader source;
 
     public TokenReader(File source) {
@@ -64,7 +53,7 @@ public class TokenReader {
             if(BasicType.isSuffix(source.peek()))
                 return new Literal(value, BasicType.decode(source.get()));
             else
-                return new Literal(value, BasicType.STR);
+                return new Literal(value, new Str());
         }
         else if(Character.isDigit(value.charAt(0))){    //number
             ParsePosition pos = new ParsePosition(0);
@@ -94,12 +83,13 @@ public class TokenReader {
                 Operator.isBefore(source.peek(), id))
             getOperator(body);
 
-        Control ret = new Control(id, control, body);
+        Control ret = new Control(id){{setControl(control);
+            setBody(body);}};
 
         if(Control.isControl(id))
             while(Control.isCase(source.peek())) {                //else/nelse
                 Control chain = getControl();
-                ret.addChild(chain.getName(), chain.getControl(), chain.getInitial());
+                ret.addChild(chain.getName(), chain.getControl(), chain.getBody());
             }
 
         return ret;

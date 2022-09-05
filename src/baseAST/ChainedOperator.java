@@ -14,6 +14,10 @@ public class ChainedOperator extends Operator {
 
     public ChainedOperator(){}
 
+    public String getName() {
+        return "chain";
+    }
+
     public boolean isChained() {
         return true;
     }

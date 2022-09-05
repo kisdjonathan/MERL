@@ -5,8 +5,8 @@ import derivedAST.FinalSyntaxNode;
 public class Assign extends BuiltinOperation {
     public Assign(){}
     public Assign(FinalSyntaxNode dest, FinalSyntaxNode value){
-        setFirst(dest);
-        setSecond(value);
+        setOrigin(dest);
+        setVector(value);
     }
 
     public String getName() {

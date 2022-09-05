@@ -24,11 +24,11 @@ public class InferredType extends FinalSyntaxNode implements BasicType{
     }
 
     public boolean isIndexed() {
-        return ;
+        return false;   //TODO
     }   //TODO when is this used? if after it is evaluated with the rest of context, do stuff with assertField
     public boolean isFielded() {
-        return ;
-    }
+        return false;
+    }   //TODO
 
     public void assertField(String name, FinalSyntaxNode t) {
 

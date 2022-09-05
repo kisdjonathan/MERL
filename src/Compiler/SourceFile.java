@@ -1,6 +1,8 @@
+package Compiler;
+
 import baseAST.*;
+import baseTypes.Function;
 import data.Usage;
-import derivedAST.FunctionDefinition;
 import baseTypes.Tuple;
 import baseAST.Consecutive;
 
@@ -10,12 +12,12 @@ import java.util.Map;
 
 //SourceFile represents a single file of the program
 //TODO complete
-public class SourceFile extends FunctionDefinition {
+public class SourceFile extends Function {
     private Map<String, Identifier> exports = new HashMap<>();
     private Map<String, Identifier> imports = new HashMap<>();
 
     public SourceFile(File sourceFile, Program build) {
-        super(new Tuple(), new Tuple(), null); //TODO this is a placeholder, so find a better constructor or better superClass
+        super(sourceFile.getName()); //TODO this is a placeholder, so find a better constructor or better superClass
         setParent(build);
 
         TokenReader reader = new TokenReader(sourceFile);
