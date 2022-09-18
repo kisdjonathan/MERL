@@ -1,7 +1,7 @@
 import baseAST.*;
 import baseTypes.Int;
 import baseTypes.Str;
-import Compiler.TokenReader;
+import compiler.TokenReader;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -10,29 +10,32 @@ import java.io.File;
 public class InputTests {
     @Test (timeout = 5000)
     public void operatorTest() {
-        TokenReader reader = new TokenReader(new File("src/InputTest/OperatorTest.txt"));
         Literal l1 = new Literal("1", new Int()),
                 l2 = new Literal("2", new Int()),
                 l3 = new Literal("3", new Int()),
-                l4 = new Literal("4", new Int());
+                l4 = new Literal("4", new Int()),
+                l5 = new Literal("3", new Int()),
+                l6 = new Literal("2", new Int());
         Operator o1 = new Operator("+"),
                 o2 = new Operator("-"),
-                o3 = new Operator("^"),
-                o4 = new Operator("/"),
-                o5 = new Operator("-");
+                o3 = new Operator("/"),
+                o4 = new Operator("-"),
+                o5 = new Operator("^");
         Group g1 = new Group("()");
         Group expected = new Group("EOF");
 
         o1.addChild(l1); o1.addChild(l2);
-        o2.addChild(l4); o2.addChild(l3);
-        o3.addChild(g1); o3.addChild(l2);
-        o4.addChild(l3); o4.addChild(o3);
-        o5.addChild(o1); o5.addChild(o4);
-        g1.setBody(o2); expected.setBody(o5);
+        o4.addChild(l4); o4.addChild(l5);
+        o5.addChild(g1); o5.addChild(l6);
+        o3.addChild(l3); o3.addChild(o5);
+        o2.addChild(o1); o2.addChild(o3);
+        g1.setBody(o4);
+        expected.setBody(o2);
 
+        TokenReader reader = new TokenReader(new File("src/InputTest/OperatorTest.txt"));
         Group read = reader.readGroup("");
 
-        assertEquals("operator case failed", expected.toString(), read.toString());
+        assertEquals("operator case failed", expected, read);
     }
 
     @Test (timeout = 5000)
@@ -49,7 +52,7 @@ public class InputTests {
 
         Group read = reader.readGroup("");
 
-        assertEquals("chain case failed", expected.toString(), read.toString());
+        assertEquals("chain case failed", expected, read);
     }
 
     @Test (timeout = 5000)
@@ -78,7 +81,7 @@ public class InputTests {
         Group expected = new Group("EOF");  expected.setBody(c1);
         Group read = reader.readGroup("");
 
-        assertEquals("assign case failed", expected.toString(), read.toString());
+        assertEquals("assign case failed", expected, read);
     }
 
     @Test (timeout = 5000)
@@ -111,7 +114,7 @@ public class InputTests {
         Group expected = new Group("EOF");  expected.setBody(c1);
         Group read = reader.readGroup("");
 
-        assertEquals("control case failed", expected.toString(), read.toString());
+        assertEquals("control case failed", expected, read);
     }
 
     @Test (timeout = 5000)
@@ -126,6 +129,6 @@ public class InputTests {
         Group expected = new Group("EOF");  expected.setBody(f1);
         Group read = reader.readGroup("");
 
-        assertEquals("field case failed", expected.toString(), read.toString());
+        assertEquals("field case failed", expected, read);
     }
 }
