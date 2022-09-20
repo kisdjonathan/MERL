@@ -1,10 +1,10 @@
-package Compiler;
+package compiler;
 
 import baseAST.*;
 import baseTypes.Function;
 import data.Usage;
-import baseTypes.Tuple;
 import baseAST.Consecutive;
+import derivedAST.FinalSyntaxNode;
 
 import java.io.File;
 import java.util.HashMap;
@@ -16,12 +16,24 @@ public class SourceFile extends Function {
     private Map<String, Identifier> exports = new HashMap<>();
     private Map<String, Identifier> imports = new HashMap<>();
 
+    public SourceFile() {
+        /*
+        TODO
+         */
+    }
+
     public SourceFile(File sourceFile, Program build) {
         super(sourceFile.getName()); //TODO this is a placeholder, so find a better constructor or better superClass
         setParent(build);
 
         TokenReader reader = new TokenReader(sourceFile);
         SyntaxNode body = reader.readGroup("").getBody();
+    }
+
+    public void setBody(FinalSyntaxNode body) {
+        /*
+        TODO
+         */
     }
 
     public SyntaxNode analyze(SyntaxNode node) {

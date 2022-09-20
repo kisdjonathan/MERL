@@ -3,9 +3,7 @@ package baseTypes;
 import data.Usage;
 import derivedAST.FinalSyntaxNode;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class Pair extends Tuple{
     public Pair(){}
@@ -14,17 +12,17 @@ public class Pair extends Tuple{
     }
 
     public FinalSyntaxNode getFirst() {
-        return getChild(0);
+        return getIndex(0);
     }
     public FinalSyntaxNode setFirst(FinalSyntaxNode first) {
-        return setChild(0, first);
+        return setIndex(0, first);
     }
 
     public FinalSyntaxNode getSecond() {
-        return getChild(1);
+        return getIndex(1);
     }
     public FinalSyntaxNode setSecond(FinalSyntaxNode second) {
-        return setChild(1, second);
+        return setIndex(1, second);
     }
 
     public String getName() {

@@ -105,8 +105,6 @@ public class Consecutive extends SyntaxNode {
 
         return new Field(origin.getReplacement(), vector.getReplacement());
     }
-    //TODO L in the future, add functionality for return type and argument type overloading (including determining inferred types)
-    //TODO L ie in Operator, where this is called, replace with a completely separate function which evaluates the body first
 
     public String toString() {
         return super.toString() + "[" +

@@ -20,7 +20,7 @@ public class Literal extends FinalSyntaxNode {
     public String getName() {
         return name;
     }
-    public FinalSyntaxNode getType() {return type;}
+    public FinalSyntaxNode getDeclaredType() {return type;}
     public Usage getUsage() {
         return Usage.LITERAL;
     }
@@ -28,23 +28,10 @@ public class Literal extends FinalSyntaxNode {
         //TODO write bytes
     }
 
-    //TODO allow custom suffixes, and move suffix support to Type
-    private static HashSet<String> suffixes = new HashSet<>(Arrays.asList(
-            "d", "ud", "ld", "uld",
-            "c", "uc", "lc", "ulc",
-            "f", "uf", "lf", "ulf",
-
-            "cl", "ucl", "lcl", "ulcl", //dynamic string
-            "cv", "ucv", "lcv", "ulcv", //static string
-
-            "l", "v",
-            "us", "s",
-            "m", "um",
-            "r"
-    ));
-    public static boolean isSuffix(String s) {
-        return suffixes.contains(s);
-    }
+    /**
+     * checks if the value of s signals a literal
+     * s signals a literal if s==" or s is a number
+     */
     public static boolean isLiteral(String s) {
         return s.equals("\"") || Character.isDigit(s.charAt(0));
     }

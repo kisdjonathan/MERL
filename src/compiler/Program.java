@@ -1,7 +1,5 @@
-package Compiler;
+package compiler;
 
-import baseTypes.Function;
-import baseTypes.Tuple;
 import derivedAST.Local;
 
 //Program represents the entire program (all system arguments, settings, and all sources)

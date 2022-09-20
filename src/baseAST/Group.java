@@ -30,9 +30,6 @@ public class Group extends SyntaxNode{
         return Usage.GROUP;
     }
 
-    public boolean isEmpty() {
-        return body != null;
-    }
     public int size() {
         return body == null ? 0 : 1;
     }

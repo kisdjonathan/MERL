@@ -4,8 +4,10 @@ import baseTypes.Function;
 import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
-import derivedAST.*;
 import operations.*;
+import operations.arithmetic.ArithmeticInfix;
+import operations.bool.BoolInfix;
+import operations.comparison.ComparisonInfix;
 
 import java.util.*;
 
@@ -49,6 +51,10 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         put("->", "cast");
         //TODO complete
     }};
+
+    /**
+     * returns the spelled-out form of opName
+     */
     private String getBuiltin(String opName) {
         String ret = builtinOperatorNames.get(opName);
         if(ret == null)
@@ -196,9 +202,6 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         return Usage.OPERATOR;
     }
 
-    public boolean isEmpty() {
-        return children.isEmpty();
-    }
     public int size() {
         return children.size();
     }
@@ -250,7 +253,7 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
     }
 
     private boolean isUndefinedVariable(SyntaxNode val) {
-        if(val.getUsage() == Usage.IDENTIFIER && !hasVariable(val.getName()))
+        if(val.getUsage() == Usage.IDENTIFIER && getVariable(val.getName()) != null)
             return true;
         if(val.getUsage() == Usage.FIELD && ((Consecutive)val).isStructure())
             return true;
@@ -262,7 +265,7 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             SyntaxNode dest = getChild(0);
             SyntaxNode source = getChild(1);
             if(isUndefinedVariable(dest))
-                return new Assign(dest.getEvaluatedReplacement(), source.getEvaluatedReplacement()).evaluated(); //TODO L tuple assignment
+                return new Assign(dest.getEvaluatedReplacement(), source.getEvaluatedReplacement()); //TODO L tuple assignment
             if(source.getUsage() == Usage.FIELD && ((Consecutive)source).isCall()) {
                 //function
 
@@ -288,7 +291,7 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
                 ret.setBody(source);  //TODO L as of now, only assigns can give a return; add returns and lambda evaluations
 
                 putFunction(ret);
-                return ret.evaluated();
+                return ret;
             }
         }
         else if(name.equals(">>")) {
@@ -296,45 +299,15 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             ret.setOrigin(getChild(0));
             ret.setVector(getChild(1));
 
-            return ret.evaluated();
+            return ret;
         }
-        //TODO should the replacement be evaluated here(below)?
         FinalSyntaxNode origin = getChild(0).getEvaluatedReplacement(), vector = getChild(1).getEvaluatedReplacement();
-        Function f = getFunction(getBuiltin(name), Tuple.asTuple(origin), Tuple.asTuple(vector));
+        Function signature = new Function(getBuiltin(name), Tuple.asTuple(origin), Tuple.asTuple(vector));
+        Function f = getFunction(signature);
         if(f != null)
             return new Call(f, new Tuple(Arrays.asList(origin, vector)));
-        FinalSyntaxNode ret =
-        switch (name) {
-            case "<<" ->
-                    new Assign(origin, vector);
-            case "=", "<", ">", "<=", ">=" ->
-                    new ComparisonInfix(name, origin, vector);
-            case "and", "or", "nor", "xor", "xnor" ->
-                    new BooleanInfix(name, origin, vector);
-            case "not" ->
-                    null;
-
-            case "$and", "$or", "$nor", "$xor", "$xnor", "$up", "$down", "$left", "$right" ->
-                    new BitwiseInfix(name, origin, vector);
-            case "$not" ->
-                    null;
-
-            case "+", "-", "*", "/", "^", "modulo", "remainder" ->
-                    new ArithmeticInfix(name, origin, vector);
-            case "->" ->
-                    new Cast(origin, vector.getType());
-            case "with" ->
-                    new With(origin, vector);
-            case "of" ->  //aka without
-                    new Without(origin, vector);
-            case "in" ->
-                    null;   //TODO L
-
-            //TODO
-            default ->
-                null;    //TODO
-        };
-        return ret.evaluated();
+        FinalSyntaxNode ret = BuiltinOperation.infix(name, origin, vector);
+        return ret;
     }
 
     public boolean isBefore(Operator other) {

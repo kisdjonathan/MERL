@@ -18,8 +18,9 @@ public class Identifier extends SyntaxNode {
         return Usage.IDENTIFIER;
     }
     public Variable getReplacement() {
-        if(!hasVariable(name))
-            putVariable(name);
-        return getVariable(name);
+        Variable ret = getVariable(name);
+        if(ret == null)
+            ret = putVariable(name);
+        return ret;
     }
 }

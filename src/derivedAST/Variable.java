@@ -20,7 +20,7 @@ public class Variable extends FinalSyntaxNode {
         return name;
     }
     public Usage getUsage() {
-        return null;
+        return Usage.VARIABLE;
     }
 
     public SyntaxNode getParent() {
@@ -37,10 +37,10 @@ public class Variable extends FinalSyntaxNode {
 
     }
 
-    public FinalSyntaxNode getType() {
+    public FinalSyntaxNode getDeclaredType() {
         return type;
     }
-    public void setType(FinalSyntaxNode t) {
+    public void setDeclaredType(FinalSyntaxNode t) {
         type = t;
     }
 }

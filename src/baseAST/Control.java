@@ -41,7 +41,13 @@ public class Control extends SyntaxNode {
     }
 
     private String name = null;
+    /**
+     * the condition of the control structure
+     */
     private SyntaxNode control = null;
+    /**
+     * the first body of the control structure
+     */
     private SyntaxNode body = null;
     private List<Case> chained = new ArrayList<>();
 
@@ -50,6 +56,9 @@ public class Control extends SyntaxNode {
         this.name = name;
     }
 
+    /**
+     * additional chained options to the control structure
+     */
     public void addChild(String name, SyntaxNode control, SyntaxNode body) {
         chained.add(new Case(name, control, body));
     }

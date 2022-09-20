@@ -2,7 +2,6 @@ package derivedAST;
 
 import baseAST.SyntaxNode;
 import baseTypes.Function;
-import baseTypes.Tuple;
 import data.Usage;
 
 import java.util.*;
@@ -25,8 +24,8 @@ public class Local extends FinalSyntaxNode {
     public Usage getUsage() {
         return Usage.GROUP;
     }
-    public FinalSyntaxNode getType() {
-        return process.getType();
+    public FinalSyntaxNode getDeclaredType() {
+        return process.getDeclaredType();
     }
 
     public void setBody(FinalSyntaxNode body) {

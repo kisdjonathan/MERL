@@ -1,4 +1,4 @@
-package Compiler;
+package compiler;
 
 //PrecompiledSourced represents imported libraries
 //TODO complete

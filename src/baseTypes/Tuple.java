@@ -13,15 +13,17 @@ import java.util.List;
 
 //Tuple represents an ordered comma or semicolon group
 public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalSyntaxNode>{
+    /**
+     * returns node if node is a tuple, otherwise creates a tuple containing node and returns that
+     **/
     public static Tuple asTuple(FinalSyntaxNode node) {
-        if(node.getUsage() == Usage.TUPLE)
-            return (Tuple)node;
-        else
-            return new Tuple(){{addChild(node);}};
+        return node.getUsage() == Usage.TUPLE ? (Tuple)node : new Tuple(){{addIndex(node);}};
     }
 
+    /**
+     * elements of the tuple, in order
+     **/
     private List<FinalSyntaxNode> children = new ArrayList<>();
-    private boolean constant = false;
 
     public Tuple(){}
     public Tuple(List<FinalSyntaxNode> children){
@@ -29,54 +31,51 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
     }
 
     public String getName() {
-        StringBuilder ret = new StringBuilder("(");
-        for(FinalSyntaxNode child : children) {
-            if (ret.length() > 1)
-                ret.append(",");
-            ret.append(child.getName());
-        }
-        ret.append(")");
-
-        return ret.toString();
+        return "tuple";
     }
     public Usage getUsage() {
         return Usage.TUPLE;
     }
 
-    public boolean isEmpty() {
-        return children.isEmpty();
-    }
     public int size() {
         return children.size();
     }
 
-    public FinalSyntaxNode getChild(int index) {
+
+    /**
+     * operations on children
+     * the parent of affected children are modified
+     **/
+    public Variable getIndex(int index) {
         return children.get(index);
     }
-    public FinalSyntaxNode setChild(int index, FinalSyntaxNode val) {
+    public FinalSyntaxNode setIndex(int index, FinalSyntaxNode val) {
         val.setParent(this);
         return children.set(index, val);
     }
-    public FinalSyntaxNode removeChild(int index) {
+    public FinalSyntaxNode removeIndex(int index) {
         FinalSyntaxNode ret = children.remove(index);
         ret.setParent(null);
         return ret;
     }
-    public void addChild(int index, FinalSyntaxNode child) {
+    public void addIndex(int index, FinalSyntaxNode child) {
         child.setParent(this);
         children.add(index, child);
     }
-    public void addChild(FinalSyntaxNode child) {
+    public void addIndex(FinalSyntaxNode child) {
         child.setParent(this);
         children.add(child);
     }
-    public void addChild(SyntaxNode child) {
+    public void addIndex(SyntaxNode child) {
         child.setParent(this);
-        addChild(child.getEvaluatedReplacement());
+        addIndex(child.getEvaluatedReplacement());
     }
 
     public boolean isConstant() {
-        return constant;
+        for(FinalSyntaxNode child : children)
+            if(!child.isConstant())
+                return false;
+        return true;
     }
     public boolean isComplete() {
         return true;
@@ -121,5 +120,16 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
 
     public Iterator<FinalSyntaxNode> iterator() {
         return children.listIterator();
+    }
+
+    public String toString() {
+        StringBuilder ret = new StringBuilder("(");
+        for(FinalSyntaxNode child : children) {
+            if (ret.length() > 1)
+                ret.append(",");
+            ret.append(child.toString());
+        }
+        ret.append(")");
+        return ret.toString();
     }
 }

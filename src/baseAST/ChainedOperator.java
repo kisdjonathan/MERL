@@ -2,8 +2,9 @@ package baseAST;
 
 import derivedAST.FinalSyntaxNode;
 import baseTypes.Tuple;
-import operations.BooleanInfix;
-import operations.ComparisonInfix;
+import operations.bool.And;
+import operations.bool.BoolInfix;
+import operations.BuiltinOperation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +18,20 @@ public class ChainedOperator extends Operator {
     public String getName() {
         return "chain";
     }
-
     public boolean isChained() {
         return true;
     }
 
+    /**
+     * performs both an addOperator and an addChild
+     */
     public void addChild(String op, SyntaxNode opand) {
         addChild(opand);
         addOperator(op);
     }
+    /**
+     * adds op at the end of the list of consecutive operators
+     */
     public void addOperator(String op) {
         operators.add(op);
     }
@@ -33,10 +39,10 @@ public class ChainedOperator extends Operator {
     public FinalSyntaxNode getReplacement(){
         if(operators.contains("<") || operators.contains("<=") || operators.contains(">") || operators.contains(">=")){
             FinalSyntaxNode prev = getChild(1).getReplacement();
-            FinalSyntaxNode ret = new ComparisonInfix(operators.get(0), getChild(0).getReplacement(), prev);
+            FinalSyntaxNode ret = BuiltinOperation.infix(operators.get(0), getChild(0).getReplacement(), prev);
             for(int i = 1; i < operators.size(); ++i) {
                 FinalSyntaxNode temp = getChild(i + 1).getReplacement();
-                ret = new BooleanInfix("and", ret, new ComparisonInfix(operators.get(i), prev, temp));
+                ret = BuiltinOperation.infix("and", ret, BuiltinOperation.infix(operators.get(i), prev, temp));
                 prev = temp;
             }
             return ret;
@@ -44,7 +50,7 @@ public class ChainedOperator extends Operator {
         else if(operators.contains(";") || operators.contains(",")) {
             return new Tuple(){{
                 for(SyntaxNode child : getChildren())
-                    addChild(child);
+                    addIndex(child);
             }};
         }
         else if(operators.contains("=")) {

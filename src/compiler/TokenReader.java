@@ -1,4 +1,4 @@
-package Compiler;
+package compiler;
 
 import baseAST.*;
 import baseTypes.BasicType;

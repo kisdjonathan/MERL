@@ -2,64 +2,66 @@ package derivedAST;
 
 import baseAST.SyntaxNode;
 import baseTypes.BasicType;
-import baseTypes.Function;
-import baseTypes.Pair;
-import baseTypes.Tuple;
-import operations.Call;
-
-import java.util.Collection;
-import java.util.List;
 
 public abstract class FinalSyntaxNode extends SyntaxNode {
-    private FinalSyntaxNode type = null;
-    public FinalSyntaxNode getType() {
-        return type;
-    }
-    public void setType(FinalSyntaxNode dependency) {
-        type = dependency;
-    }
-
-
     public boolean isComplete() {
         return true;
     }
+    /**
+     * returns whether the value of this can differ between runs
+     * i.e. a literal is constant, but time is not
+     * used for analysis
+     **/
     public boolean isConstant() {
         return true;
     }
 
 
+    /**
+     * does not do anything as this is already complete
+     **/
     public FinalSyntaxNode getReplacement(){return this;}
 
-    //call as soon after getReplacement as possible on the replacement
+    /**
+     * performs necessary setup procedures for this
+     * i.e. checks if an assignment is a declaration, and if so, declares the variable
+     * call as soon after getReplacement as possible
+     **/
     public FinalSyntaxNode evaluated(){
         return this;
     }
 
 
+    /**
+     * the type that directly precedes this
+     * null if this is a basic type
+     **/
+    private FinalSyntaxNode declaredType = null;
+    public FinalSyntaxNode getDeclaredType() {
+        return declaredType;
+    }
+    public void setDeclaredType(FinalSyntaxNode dependency) {
+        declaredType = dependency;
+    }
+
+    /**
+     * returns the basic type of this which defines this' properties
+     **/
     public BasicType getBaseType() {
-        return type.getBaseType();
+        return declaredType.getBaseType();
     }
+    /**
+     * returns whether the type of this and the type of other are equal
+     **/
     public boolean typeEquals(FinalSyntaxNode other) {
-        return getType().typeEquals(other);
+        return getDeclaredType().typeEquals(other);
     }
-    //TODO L add flexible auto-casting
-//    protected FinalSyntaxNode typeConvert(FinalSyntaxNode self, FinalSyntaxNode other, FinalSyntaxNode context) {
-//        if(self.typeEquals(other))
-//            return other;
-//        //direct conversion
-//        Function ret = context.getFunction("convert", Tuple.asTuple(this), Tuple.asTuple(other));
-//        if(ret != null)
-//            return new Call(ret, Tuple.asTuple(self));
-//        return null;
-//    }
-//    //returns a FinalSyntaxNode with the type of other but the value of self, or null if not possible
-//    public FinalSyntaxNode typeConvert(FinalSyntaxNode other, FinalSyntaxNode context) {
-//        return typeConvert(this, other, context);
-//    }
-    public boolean typeContains(FinalSyntaxNode other, FinalSyntaxNode context) {
+    /**
+     * returns whether this can be cast to other
+     **/
+    public boolean typeConvertsTo(FinalSyntaxNode other) {
         //TODO L
         //return typeConvert(other, context) != null;
         return typeEquals(other);
     }
-
 }

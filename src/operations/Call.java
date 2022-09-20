@@ -1,7 +1,6 @@
 package operations;
 
 import baseTypes.InferredType;
-import baseTypes.Structure;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
 import baseTypes.Function;
@@ -16,18 +15,18 @@ public class Call extends BuiltinOperation {
     public Call(FinalSyntaxNode func, FinalSyntaxNode args) {
         setOrigin(func);
         setVector(Tuple.asTuple(args));
-        setType(new InferredType());
+        setDeclaredType(new InferredType());
     }
 
     public Call(FinalSyntaxNode func, FinalSyntaxNode args, FinalSyntaxNode type) {
         setOrigin(func);
         setVector(Tuple.asTuple(args));
-        setType(type);
+        setDeclaredType(type);
     }
 
     public Call(Function func, FinalSyntaxNode args) {
         this((FinalSyntaxNode)func, args);
-        setType(func.getType());
+        setDeclaredType(func.getDeclaredType());
     }
 
     public Usage getUsage() {

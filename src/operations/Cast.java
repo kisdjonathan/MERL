@@ -7,7 +7,9 @@ import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
 import derivedAST.*;
 
-//Cast represents cases of conversions where from != to and from->to is not overridden
+/**
+ * Cast represents cases of conversions where from != to and from->to is not overridden
+ */
 public class Cast extends BuiltinOperation {
     public Cast(FinalSyntaxNode from, FinalSyntaxNode to) {
         setOrigin(from);
