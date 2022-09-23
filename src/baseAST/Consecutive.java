@@ -99,7 +99,7 @@ public class Consecutive extends SyntaxNode {
         else if(isGroupedLiteral()) {
             switch (vector.getName()) {
                 case "r":
-                    return Range.decode(origin);
+                    return Range.decode((Group) origin);
                 default:
                     return origin.getReplacement();//TODO L
             }

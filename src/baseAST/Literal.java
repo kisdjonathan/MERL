@@ -24,9 +24,6 @@ public class Literal extends FinalSyntaxNode {
     public Usage getUsage() {
         return Usage.LITERAL;
     }
-    public void writeBytes(BufferedWriter out) {
-        //TODO write bytes
-    }
 
     /**
      * checks if the value of s signals a literal
