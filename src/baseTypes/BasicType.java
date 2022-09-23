@@ -61,31 +61,31 @@ public interface BasicType{
      * if none exists, returns null
      * used by compiler
      **/
-    RelativeVariable getIndex(int i);
+    Variable getIndex(int i);
 
     /**
      * returns all fields of this
      * if there are no fields, returns null
      **/
-    List<RelativeVariable> getFields();
+    List<Variable> getFields();
     /**
      * returns the variable associated with field name
      * if none exists, returns null
      * used by compiler
      **/
-    RelativeVariable getField(String name);
+    Variable getField(String name);
 
     /**
      * returns all methods of this
      * if there are no methods, returns null
      **/
-    List<RelativeFunction> getMethods();
+    List<Function> getMethods();
     /**
      * returns the function associated with method signature
      * if none exists, returns null
      * used by compiler
      **/
-    RelativeFunction getMethod(Function signature);
+    Function getMethod(Function signature);
 
     /**
      * returns the size of this

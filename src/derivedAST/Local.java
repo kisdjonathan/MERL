@@ -43,8 +43,9 @@ public class Local extends FinalSyntaxNode {
     public Variable getVariable(String name) {
         return variables.get(name);
     }
-    public void putVariable(Variable value) {
+    public Variable putVariable(Variable value) {
         variables.put(value.getName(), value);
+        return value;
     }
 
     public List<Function> getFunction(String name) {
@@ -54,9 +55,10 @@ public class Local extends FinalSyntaxNode {
         ret.addAll(functions.get(name));
         return ret;
     }
-    public void putFunction(Function value) {
+    public Function putFunction(Function value) {
         if(!functions.containsKey(value.getName()))
             functions.put(value.getName(), new ArrayList<>());
         functions.get(value.getName()).add(value);
+        return value;
     }
 }

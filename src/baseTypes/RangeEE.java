@@ -2,7 +2,7 @@ package baseTypes;
 
 import derivedAST.FinalSyntaxNode;
 
-public class RangeEE extends FinalSyntaxNode implements BasicType {
+public class RangeEE extends Range {
     public RangeEE(){
         //TODO
     }
@@ -12,5 +12,9 @@ public class RangeEE extends FinalSyntaxNode implements BasicType {
     public RangeEE(int start, int end, int step){
         //TODO
     }
-    //TODO constructors for floats and finalsyntaxnodes
+
+    public RangeEE(FinalSyntaxNode start, FinalSyntaxNode end) {
+        //TODO
+    }
+    //TODO remaining constructors for floats and finalsyntaxnodes
 }

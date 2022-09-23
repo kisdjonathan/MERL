@@ -100,7 +100,7 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
     public void assertField(String name, FinalSyntaxNode t) {
         throw new IllegalAccessError("unable to access field " + name + " in tuple " + getName());
     }
-    public FinalSyntaxNode getField(String name) {
+    public Variable getField(String name) {
         return null;
     }
 

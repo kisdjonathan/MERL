@@ -1,5 +1,7 @@
 package baseAST;
 
+import baseTypes.RangeEI;
+import baseTypes.RangeIE;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
 import derivedAST.Local;
@@ -51,9 +53,9 @@ public class Group extends SyntaxNode{
             case "{}":
                 return null;    //TODO L set
             case "(]":
-                return null;    //TODO L range
+                return new RangeEI(getBody());    //TODO L range
             case "[)":
-                return null;    //TODO L range
+                return new RangeIE(getBody());    //TODO L range
             default:    //EOF
                 return new Local(){{
                     setBody(body);

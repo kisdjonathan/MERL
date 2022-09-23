@@ -1,7 +1,10 @@
 package baseAST;
 
+import baseTypes.Bool;
+import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
+import operations.controls.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,8 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 
 //Control represents all control structures
-//TODO L currently, the Control only allows for return values if the types of all cases are the same
-//TODO complete
+//TODO L list comprehension with controls
 public class Control extends SyntaxNode {
     private static final HashSet<String> controls = new HashSet<>(Arrays.asList(
             "if", "repeat", "while", "for"
@@ -58,6 +60,7 @@ public class Control extends SyntaxNode {
 
     /**
      * additional chained options to the control structure
+     * pass null for control to specify default
      */
     public void addChild(String name, SyntaxNode control, SyntaxNode body) {
         chained.add(new Case(name, control, body));
@@ -91,7 +94,28 @@ public class Control extends SyntaxNode {
     }
 
     public FinalSyntaxNode getReplacement() {
-        return null;    //TODO
+        ControlStructure ret;
+        switch (name) {
+            case "if" -> ret = new If(getControl(), getBody());
+            case "repeat" -> ret = new Repeat(getControl(), getBody());
+            case "while" -> ret = new While(getControl(), getBody());
+            case "for" -> {
+                SyntaxNode control = getControl();
+                if (!control.equals(Usage.OPERATOR, "in"))
+                    throw new Error("for loop must have an 'in' statement as control");
+                ret = new For(((Operator) control).getChild(0),
+                        ((Operator) control).getChild(1),
+                        getBody());
+            }
+            default -> throw new Error("Control structure " + getName() + " does not exist");
+        }
+        for (Case child : chained) {
+            if(child.name.equals("else"))
+                ret.addElse(child.control == null?new Bool(true):child.control, child.body);
+            else
+                ret.addNelse(child.control == null?new Bool(true):child.control, child.body);
+        }
+        return ret;
     }
 
     public String toString() {
