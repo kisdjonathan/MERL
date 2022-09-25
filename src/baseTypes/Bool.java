@@ -7,7 +7,6 @@ import derivedAST.Variable;
 
 import java.util.List;
 
-//TODO
 public class Bool extends FinalSyntaxNode implements BasicType {
     private boolean value = false;
 

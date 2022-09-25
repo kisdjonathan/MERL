@@ -7,7 +7,6 @@ import derivedAST.Variable;
 
 import java.util.List;
 
-//TODO
 public class Int extends FinalSyntaxNode implements BasicType{
     private boolean extended = false;
     private int value;

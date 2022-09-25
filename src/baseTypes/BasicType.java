@@ -5,6 +5,7 @@ import data.TypeSize;
 import derivedAST.*;
 
 import java.util.*;
+import java.util.List;
 
 //TODO complete
 public interface BasicType{
@@ -37,9 +38,9 @@ public interface BasicType{
     default boolean typeContains(FinalSyntaxNode other) {
         BasicType otherType = other.getBaseType();
         return indexCount() >= otherType.indexCount() &&
-                ((getMethods() != null && otherType.getMethods() != null && new HashSet<>(getMethods()).containsAll(new ArrayList<>(otherType.getMethods()))) ||
+                ((getMethods() != null && otherType.getMethods() != null && new HashSet<>(getMethods()).containsAll(otherType.getMethods())) ||
                         getMethods() == otherType.getMethods()) &&
-                ((getMethods() != null && otherType.getMethods() != null && new HashSet<>(getFields()).containsAll(new ArrayList<>(otherType.getFields()))) ||
+                ((getMethods() != null && otherType.getMethods() != null && new HashSet<>(getFields()).containsAll(otherType.getFields())) ||
                         getMethods() == otherType.getMethods());
     }
 
@@ -92,7 +93,7 @@ public interface BasicType{
      **/
     TypeSize getByteSize();
 
-    //TODO allow custom suffixes
+    //TODO L allow custom suffixes
     static HashSet<String> suffixes = new HashSet<>(Arrays.asList(
             "d", "ud", "ld", "uld",
             "c", "uc", "lc", "ulc",

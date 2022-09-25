@@ -3,7 +3,7 @@ package baseTypes;
 import baseAST.SyntaxNode;
 import derivedAST.FinalSyntaxNode;
 
-public class List extends FinalSyntaxNode implements BasicType{
+public class DynamicArray extends Storage{
     public void setBody(SyntaxNode body) {
 
     }

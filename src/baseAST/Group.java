@@ -48,11 +48,11 @@ public class Group extends SyntaxNode{
             case "()":
                 return body.getReplacement();
             case "[]":
-                return new List(){{
+                return new DynamicArray(){{
                     setBody(body);
                 }};
             case "{}":
-                return new Set(){{
+                return new UnorderedSet(){{
                     setBody(body);
                 }};
             case "(]":
