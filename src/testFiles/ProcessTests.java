@@ -1,3 +1,5 @@
+package testFiles;
+
 import baseAST.Group;
 import baseTypes.Int;
 import baseTypes.RangeEI;
@@ -5,9 +7,10 @@ import baseTypes.Str;
 import baseTypes.Tuple;
 import compiler.*;
 import derivedAST.Field;
+import derivedAST.Local;
 import operations.BuiltinOperation;
-import operations.controls.ControlStructure;
-import operations.controls.While;
+import operations.control.ControlStructure;
+import operations.control.While;
 import derivedAST.FinalSyntaxNode;
 import derivedAST.Variable;
 import operations.arithmetic.Add;
@@ -25,7 +28,7 @@ public class ProcessTests {
 
     @Test (timeout = 5000)
     public void operatorTest() {
-        SourceFile expected = new SourceFile();
+        Local expected = new Local();
 
         Int n1 = new Int(1),
                 n2 = new Int(2),
@@ -48,7 +51,7 @@ public class ProcessTests {
 
         expected.setBody(op2);
 
-        TokenReader reader = new TokenReader(new File("src/InputTest/OperatorTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/OperatorTest.txt"));
         Group read = reader.readGroup("");
         FinalSyntaxNode actual = read.getEvaluatedReplacement();
 
@@ -57,16 +60,12 @@ public class ProcessTests {
 
     @Test (timeout = 5000)
     public void chainOperatorTest() {
-        SourceFile expected = new SourceFile();
+        Local expected = new Local();
 
-        Int n1 = new Int(1),
-                n2 = new Int(1),
-                n3 = new Int(1);
-
-        FinalSyntaxNode body = new RangeEI(1, 1, 1);
+        FinalSyntaxNode body = new RangeEI(1, 5, 1);
         expected.setBody(body);
 
-        TokenReader reader = new TokenReader(new File("src/InputTest/ChainedOperatorTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/ChainedOperatorTest.txt"));
         Group read = reader.readGroup("");
         FinalSyntaxNode actual = read.getEvaluatedReplacement();
 
@@ -75,7 +74,7 @@ public class ProcessTests {
 
     @Test (timeout = 5000)
     public void assignTest() {
-        SourceFile expected = new SourceFile();
+        Local expected = new Local();
 
         Int n1 = new Int(1),
                 n2 = new Int(2);
@@ -107,27 +106,25 @@ public class ProcessTests {
 
         expected.setBody(body);
 
-        TokenReader reader = new TokenReader(new File("src/InputTest/AssignTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/AssignTest.txt"));
         Group read = reader.readGroup("");
         FinalSyntaxNode actual = read.getEvaluatedReplacement();
 
         assertEquals("assign case failed", expected, actual);
     }
 
-    @Test (timeout = 5000)
+    @Test
     public void controlTest() {
-        SourceFile expected = new SourceFile();
+        Local expected = new Local();
 
         Int n1 = new Int(3),
                 n2 = new Int(1),
-                n3 = new Int(-999);
+                n3 = new Int(999);
 
         BuiltinOperation op1 = new Assign(),
                 op2 = new Assign(),
                 op3 = new Subtract(),
                 op4 = new Assign();
-
-        ControlStructure c1 = new While();
 
         Tuple body = new Tuple();
 
@@ -137,18 +134,19 @@ public class ProcessTests {
         op1.setOrigin(v1);  op1.setVector(n1);
         op3.setOrigin(v1);  op3.setVector(n2);
         op2.setOrigin(v1);  op2.setVector(op2);
-        op4.setOrigin(v1); op4.setVector(n3);
+        op4.setOrigin(v1);  op4.setVector(n3);
 
+        ControlStructure c1 = new While(v1, op2);
         c1.setOrigin(v1);
         c1.setVector(op2);
-        c1.addNelse(null, op4);
+        c1.addNelse(op4);
 
         body.addIndex(op1);
         body.addIndex(c1);
 
         expected.setBody(body);
 
-        TokenReader reader = new TokenReader(new File("src/InputTest/ControlTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/ControlTest.txt"));
         Group read = reader.readGroup("");
         FinalSyntaxNode actual = read.getEvaluatedReplacement();
 
@@ -157,7 +155,7 @@ public class ProcessTests {
 
     @Test (timeout = 5000)
     public void fieldTest() {
-        SourceFile expected = new SourceFile();
+        Local expected = new Local();
 
         Str s1 = new Str("12345");
         FinalSyntaxNode f1 = s1.getBaseType().getField("length");
@@ -166,7 +164,7 @@ public class ProcessTests {
 
         expected.setBody(op1);
 
-        TokenReader reader = new TokenReader(new File("src/InputTest/FieldTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/FieldTest.txt"));
         Group read = reader.readGroup("");
         FinalSyntaxNode actual = read.getEvaluatedReplacement();
 

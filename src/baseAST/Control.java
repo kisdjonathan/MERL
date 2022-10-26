@@ -1,10 +1,9 @@
 package baseAST;
 
 import baseTypes.Bool;
-import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
-import operations.controls.*;
+import operations.control.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +39,11 @@ public class Control extends SyntaxNode {
         public String toString() {
             return name + "(" + control + "){" + body + "}";
         }
+        public boolean equals(Object other) {
+            return other instanceof Case cObject &&
+                    (cObject.control != null && cObject.control.equals(control) || cObject.control == control) &&
+                    cObject.body.equals(body);
+        }
     }
 
     private String name = null;
@@ -71,6 +75,10 @@ public class Control extends SyntaxNode {
     public void addNelse(SyntaxNode control, SyntaxNode body) {
         chained.add(new Case("nelse", control, body));
     }
+    public int size() {
+        return chained.size();
+    }
+
 
     public SyntaxNode getControl() {
         return control;
@@ -96,16 +104,17 @@ public class Control extends SyntaxNode {
     public FinalSyntaxNode getReplacement() {
         ControlStructure ret;
         switch (name) {
-            case "if" -> ret = new If(getControl(), getBody());
-            case "repeat" -> ret = new Repeat(getControl(), getBody());
-            case "while" -> ret = new While(getControl(), getBody());
+            case "if" -> ret = new If(getControl(), getBody(), getParent());
+            case "repeat" -> ret = new Repeat(getControl(), getBody(), getParent());
+            case "while" -> ret = new While(getControl(), getBody(), getParent());
             case "for" -> {
                 SyntaxNode control = getControl();
                 if (!control.equals(Usage.OPERATOR, "in"))
                     throw new Error("for loop must have an 'in' statement as control");
                 ret = new For(((Operator) control).getChild(0),
                         ((Operator) control).getChild(1),
-                        getBody());
+                        getBody(),
+                        getParent());
             }
             default -> throw new Error("Control structure " + getName() + " does not exist");
         }
@@ -120,5 +129,17 @@ public class Control extends SyntaxNode {
 
     public String toString() {
         return super.toString() + "(" + control + "){" + body + "}" + chained;
+    }
+    public boolean equals(Object other) {
+        if(!(super.equals(other) && other instanceof Control gOther &&
+                gOther.getControl().equals(getControl()) &&
+                gOther.getBody().equals(getBody()) &&
+                gOther.size() == size() &&
+                gOther.size() == size()))
+            return false;
+        for(int i = 0; i < size(); ++i)
+            if(!gOther.chained.get(i).equals(chained.get(i)))
+                return false;
+        return true;
     }
 }

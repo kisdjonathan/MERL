@@ -1,6 +1,7 @@
 package derivedAST;
 
 import baseAST.SyntaxNode;
+import baseTypes.InferredType;
 import data.Usage;
 
 //Variable stores the data related to a variable (relative memory position, type, specific functions)
@@ -14,6 +15,7 @@ public class Variable extends FinalSyntaxNode {
     }
     public Variable(String name) {
         this.name = name;
+        this.type = new InferredType();
     }
 
     public String getName() {
@@ -31,10 +33,6 @@ public class Variable extends FinalSyntaxNode {
 
     public boolean isComplete() {
         return true;
-    }
-
-    public void assertField(String name, FinalSyntaxNode t) {
-
     }
 
     public FinalSyntaxNode getDeclaredType() {

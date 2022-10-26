@@ -1,12 +1,10 @@
 package baseAST;
 
-import baseTypes.Tuple;
+import baseTypes.Signature;
 import data.*;
 import derivedAST.FinalSyntaxNode;
-import baseTypes.Function;
+import derivedAST.Function;
 import derivedAST.Variable;
-import operations.Call;
-import operations.Cast;
 
 import java.util.List;
 
@@ -74,11 +72,11 @@ public abstract class SyntaxNode {
     /**
      * returns the function of signature from the most recent local which it occurs in
      **/
-    public Function getFunction(Function signature) {
-        List<Function> possibilities = getFunction(signature.getName());
+    public Function getFunction(String name, Signature signature) {
+        List<Function> possibilities = getFunction(name);
         for(int i = possibilities.size()-1; i >= 0; --i) {
             //TODO L flexible casting
-            if(possibilities.get(i).typeStrictEquals(signature))
+            if(possibilities.get(i).getDeclaredType().typeStrictEquals(signature))
                 return possibilities.get(i);
         }
         return null;
@@ -99,6 +97,8 @@ public abstract class SyntaxNode {
         return putFunction(new Function(name));
     }
 
+
+
     /**
      * returns the FinalSyntaxNode equivalent of this
      * the return will have the same parent as this
@@ -117,6 +117,13 @@ public abstract class SyntaxNode {
     }
 
     /**
+     * debug use
+     **/
+    public String toString() {
+        return getUsage() + " " + getName();
+    }
+
+    /**
      * returns true if the specified value(s) match the properties of this
      **/
     public boolean equals(Usage usage) {
@@ -125,17 +132,10 @@ public abstract class SyntaxNode {
     public boolean equals(String name) {
         return getName().equals(name);
     }
-    public boolean equals(Object other) {
-        return other instanceof SyntaxNode sother && sother.equals(getUsage(), getName());
-    }
     public boolean equals(Usage usage, String name) {
         return equals(usage) && equals(name);
     }
-
-    /**
-     * debug use
-     **/
-    public String toString() {
-        return getUsage() + " " + getName();
+    public boolean equals(Object other) {
+        return other instanceof SyntaxNode sOther && sOther.equals(getUsage(), getName());
     }
 }

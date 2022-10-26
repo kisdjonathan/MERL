@@ -1,4 +1,4 @@
-package operations.controls;
+package operations.control;
 
 import baseAST.SyntaxNode;
 import baseTypes.Tuple;
@@ -28,7 +28,8 @@ public class For extends ControlStructure {
      *  for iterationVariables in iterableVariable:
      *      body
      */
-    public For(SyntaxNode iterationVariables, SyntaxNode iterableVariable, SyntaxNode body) {
+    public For(SyntaxNode iterationVariables, SyntaxNode iterableVariable, SyntaxNode body, SyntaxNode parent) {
+        setParent(parent);
         iterationVariables.setParent(this);
         for(FinalSyntaxNode node : Tuple.asTuple(iterableVariable.getEvaluatedReplacement())){
             node.setParent(this);

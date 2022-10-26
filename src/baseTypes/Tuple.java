@@ -3,6 +3,8 @@ package baseTypes;
 import baseAST.SyntaxNode;
 import data.Usage;
 import derivedAST.FinalSyntaxNode;
+import derivedAST.RelativeFunction;
+import derivedAST.RelativeVariable;
 import derivedAST.Variable;
 
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.List;
 //TODO special type here
 
 //Tuple represents an ordered comma or semicolon group
-public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalSyntaxNode>{
+public class Tuple extends BasicType implements Iterable<FinalSyntaxNode>{
     /**
      * returns node if node is a tuple, otherwise creates a tuple containing node and returns that
      **/
@@ -44,10 +46,10 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
 
     /**
      * operations on children
-     * the parent of affected children are modified
+     * the parent of the affected children is modified
      **/
-    public Variable getIndex(int index) {
-        return children.get(index);
+    public FinalSyntaxNode getIndex(int i) {
+        return children.get(i);
     }
     public FinalSyntaxNode setIndex(int index, FinalSyntaxNode val) {
         val.setParent(this);
@@ -70,6 +72,9 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
         child.setParent(this);
         addIndex(child.getEvaluatedReplacement());
     }
+    public int indexCount() {
+        return size();
+    }
 
     public boolean isConstant() {
         for(FinalSyntaxNode child : children)
@@ -87,36 +92,17 @@ public class Tuple extends FinalSyntaxNode implements BasicType, Iterable<FinalS
                 return false;
         return true;
     }
-    public BasicType getBaseType() {
-        return this;
+
+    public TypeSize getByteSize() {
+        TypeSize ret = new TypeSize(0);
+        for(FinalSyntaxNode child : children)
+            ret = TypeSize.add(ret, child.getBaseType().getByteSize());
+        return ret;
+    }
+    public FinalSyntaxNode newInstance(String s) {
+        throw new Error("unable to create new tuple instance as a literal (from " + s + ")");
     }
 
-    public boolean isIndexed() {
-        return true;
-    }
-    public boolean isFielded() {
-        return false;
-    }
-    public void assertField(String name, FinalSyntaxNode t) {
-        throw new IllegalAccessError("unable to access field " + name + " in tuple " + getName());
-    }
-    public Variable getField(String name) {
-        return null;
-    }
-
-    public List<Variable> getFields() {
-        return null;
-    }
-    public List<Function> getFunctions() {
-        return null;
-    }
-//    protected FinalSyntaxNode typeConvert(FinalSyntaxNode self, FinalSyntaxNode other, FinalSyntaxNode context) {
-//        FinalSyntaxNode ret = super.typeConvert(self, other, context);
-//        if(ret != null)
-//            return ret;
-//
-//
-//    }
 
     public Iterator<FinalSyntaxNode> iterator() {
         return children.listIterator();

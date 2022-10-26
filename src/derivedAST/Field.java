@@ -8,6 +8,11 @@ public class Field extends FinalSyntaxNode {
     private FinalSyntaxNode origin = null, vector = null;
 
     public Field() {}
+    public Field(SyntaxNode parent, SyntaxNode field){
+        setOrigin(parent);
+        //TODO load fields in parent
+        setVector(field);
+    }
     public Field(FinalSyntaxNode parent, FinalSyntaxNode field){
         setOrigin(parent);
         setVector(field);

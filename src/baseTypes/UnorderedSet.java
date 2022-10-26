@@ -1,13 +1,16 @@
 package baseTypes;
 
 import baseAST.SyntaxNode;
+import data.Usage;
 import derivedAST.FinalSyntaxNode;
+import derivedAST.RelativeFunction;
+import derivedAST.RelativeVariable;
 
-public class UnorderedSet extends FinalSyntaxNode implements BasicType {
-    public void setBody(SyntaxNode body) {
+import java.util.Collection;
 
-    }
-    public void setBody(FinalSyntaxNode body) {
-
+//TODO fill in fields, methods, and bytes
+public class UnorderedSet extends Storage {
+    public String getName() {
+        return "unordered set";
     }
 }

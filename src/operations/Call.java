@@ -3,7 +3,7 @@ package operations;
 import baseTypes.InferredType;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
-import baseTypes.Function;
+import derivedAST.Function;
 import baseTypes.Tuple;
 
 //Call stores information of a function call

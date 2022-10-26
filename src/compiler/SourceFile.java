@@ -1,7 +1,8 @@
 package compiler;
 
 import baseAST.*;
-import baseTypes.Function;
+import baseTypes.BasicType;
+import derivedAST.Function;
 import data.Usage;
 import baseAST.Consecutive;
 import derivedAST.FinalSyntaxNode;
@@ -16,7 +17,8 @@ public class SourceFile extends Function {
     private Map<String, Identifier> exports = new HashMap<>();
     private Map<String, Identifier> imports = new HashMap<>();
 
-    public SourceFile() {
+    public SourceFile(String name) {
+        super(name);
         /*
         TODO
          */
@@ -58,7 +60,7 @@ public class SourceFile extends Function {
                 if(fnode.getVector().getUsage() == Usage.GROUP){
                     //TODO handle call/structure/index
                 }
-                else if(fnode.getOrigin().getUsage() == Usage.GROUP && Literal.isSuffix(fnode.getVector().getName())) {
+                else if(fnode.getOrigin().getUsage() == Usage.GROUP && BasicType.isSuffix(fnode.getVector().getName())) {
                     //TODO handle group literal
                 }
                 else {

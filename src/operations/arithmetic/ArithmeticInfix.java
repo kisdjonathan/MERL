@@ -1,5 +1,6 @@
 package operations.arithmetic;
 
+import baseAST.SyntaxNode;
 import baseTypes.BasicType;
 import derivedAST.FinalSyntaxNode;
 import operations.BuiltinOperation;

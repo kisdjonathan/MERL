@@ -1,7 +1,6 @@
 package derivedAST;
 
 import baseAST.SyntaxNode;
-import baseTypes.Function;
 import data.Usage;
 
 import java.util.*;
@@ -52,7 +51,8 @@ public class Local extends FinalSyntaxNode {
         ArrayList<Function> ret = new ArrayList<>();
         if(getParent() != null)
             ret.addAll(getParent().getFunction(name));
-        ret.addAll(functions.get(name));
+        if(functions.containsKey(name))
+            ret.addAll(functions.get(name));
         return ret;
     }
     public Function putFunction(Function value) {

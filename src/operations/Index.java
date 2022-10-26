@@ -11,9 +11,6 @@ public class Index extends BuiltinOperation {
         setOrigin(ref);
         setVector(pos);
     }
-    public Index(FinalSyntaxNode ref, int pos) {
-        this(ref, new Literal(String.valueOf(pos), new Int()));
-    }
 
     public FinalSyntaxNode getDeclaredType() {
         //return getOrigin().getType().getIndexedType();

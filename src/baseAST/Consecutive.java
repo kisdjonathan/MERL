@@ -7,6 +7,8 @@ import derivedAST.*;
 import operations.Call;
 import operations.Index;
 
+import java.util.List;
+
 public class Consecutive extends SyntaxNode {
     private SyntaxNode origin = null, vector = null;
 
@@ -79,8 +81,18 @@ public class Consecutive extends SyntaxNode {
     }
 
     public FinalSyntaxNode getReplacement() {
-        if(isCall())
-            return new Call(origin.getReplacement(), ((Group)vector).getBody().getReplacement());
+        if(isCall()) {
+            if(origin.equals(Usage.IDENTIFIER)) {
+                Tuple args = Tuple.asTuple(((Group) vector).getBody().getReplacement());
+                Signature sig = new Signature(args, null);    //TODO rets
+
+                Function func = getFunction(origin.getName(), sig);
+                return new Call(func, args);
+            }
+            else {
+                return new Call(getOrigin().getReplacement(), getVector().getReplacement());
+            }
+        }
         else if(isIndex())
             return new Index(origin.getReplacement(), ((Group)vector).getBody().getReplacement());
         else if(isTypedLambda())
@@ -105,12 +117,17 @@ public class Consecutive extends SyntaxNode {
             }
         }
 
-        return new Field(origin.getReplacement(), vector.getReplacement());
+        //have field be a local and accept 2 syntaxnodes to evaluate as children so that origin's fields can be loaded first
+        return new Field(origin, vector);
     }
 
     public String toString() {
         return super.toString() + "[" +
                 origin + ", " + vector +
                 "]";
+    }
+    public boolean equals(Object other) {
+        return super.equals(other) && other instanceof Consecutive gOther
+                && gOther.getOrigin().equals(getOrigin()) && gOther.getVector().equals(getVector());
     }
 }

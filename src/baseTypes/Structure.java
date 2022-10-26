@@ -5,7 +5,7 @@ import derivedAST.FinalSyntaxNode;
 import java.util.*;
 
 //TODO Tuple, except with named fields
-public class Structure extends Tuple {
+public abstract class Structure extends Tuple {
     private Map<String, Integer> namePositions = new HashMap<>();
 
     public FinalSyntaxNode removeChild(String name) {

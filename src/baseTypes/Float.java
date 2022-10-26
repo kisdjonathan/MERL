@@ -1,38 +1,27 @@
 package baseTypes;
 
-import data.TypeSize;
 import data.Usage;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.Variable;
+import derivedAST.RelativeFunction;
+import derivedAST.RelativeVariable;
 
 import java.util.List;
 
-public class Float extends FinalSyntaxNode implements BasicType{
-    private boolean extended = false;
-    private float value = 0;
+public class Float extends Numerical{
+    private double value = 0;
 
     public Float(){}
-    public Float(float val) {
+    public Float(double val) {
         value = val;
     }
 
     public String getName() {
         return "float";
     }
-    public Usage getUsage() {
-        return Usage.TYPE;
+    public double getValue() {
+        return value;
     }
 
-    public boolean isLong() {
-        return extended;
-    }
-    public void setLong(boolean v) {
-        extended = v;
-    }
-
-    public BasicType getBaseType() {
-        return this;
-    }
     public boolean typeEquals(FinalSyntaxNode other) {
         return getByteSize().compareTo(other.getBaseType().getByteSize()) == 0;
     }
@@ -40,27 +29,15 @@ public class Float extends FinalSyntaxNode implements BasicType{
         return getByteSize().compareTo(other.getBaseType().getByteSize()) >= 0;
     }
 
-    public int indexCount() {
-        return 0;
-    }
-    public Variable getIndex(int i) {
-        return null;
+    protected int defaultByteSize() {
+        return 4;
     }
 
-    public List<Variable> getFields() {
-        return null;
-    }
-    public Variable getField(String name) {
-        return null;
-    }
-    public List<Function> getMethods() {
-        return null;
-    }
-    public Function getMethod(Function signature) {
-        return null;
+    public FinalSyntaxNode newInstance(String s) {
+        return new Float(Double.parseDouble(s));
     }
 
-    public TypeSize getByteSize() {
-        return new TypeSize(extended ? 8 : 4);
+    public String toString() {
+        return super.toString() + " " + value;
     }
 }

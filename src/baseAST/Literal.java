@@ -1,16 +1,14 @@
 package baseAST;
 
+import baseTypes.BasicType;
+import baseTypes.Int;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
 
-import java.io.BufferedWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-
 //baseAST.Literal stores the type and name of a literal (numbers and strings)
 public class Literal extends FinalSyntaxNode {
-    private String name = null;
-    private FinalSyntaxNode type = null;
+    private String name;
+    private FinalSyntaxNode type;
 
     public Literal(String name, FinalSyntaxNode type){
         this.name = name;
@@ -23,6 +21,10 @@ public class Literal extends FinalSyntaxNode {
     public FinalSyntaxNode getDeclaredType() {return type;}
     public Usage getUsage() {
         return Usage.LITERAL;
+    }
+
+    public FinalSyntaxNode getReplacement() {
+        return ((BasicType)type).newInstance(name);
     }
 
     /**

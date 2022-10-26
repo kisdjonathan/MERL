@@ -1,3 +1,5 @@
+package testFiles;
+
 import baseAST.*;
 import baseTypes.Int;
 import baseTypes.Str;
@@ -32,7 +34,7 @@ public class InputTests {
         g1.setBody(o4);
         expected.setBody(o2);
 
-        TokenReader reader = new TokenReader(new File("src/InputTest/OperatorTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/OperatorTest.txt"));
         Group read = reader.readGroup("");
 
         assertEquals("operator case failed", expected, read);
@@ -40,13 +42,14 @@ public class InputTests {
 
     @Test (timeout = 5000)
     public void chainOperatorTest() {
-        TokenReader reader = new TokenReader(new File("src/InputTest/ChainedOperatorTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/ChainedOperatorTest.txt"));
         Literal l1 = new Literal("1", new Int());
+        Literal l2 = new Literal("5", new Int());
         ChainedOperator o1 = new ChainedOperator();
         Group g1 = new Group("(]");
         Group expected = new Group("EOF");
 
-        o1.addChild(l1); o1.addChild(",", l1); o1.addChild(",", l1);
+        o1.addChild(l1); o1.addChild(",", l2); o1.addChild(",", l1);
         g1.setBody(o1);
         expected.setBody(g1);
 
@@ -57,7 +60,7 @@ public class InputTests {
 
     @Test (timeout = 5000)
     public void assignTest() {
-        TokenReader reader = new TokenReader(new File("src/InputTest/AssignTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/AssignTest.txt"));
 
         Operator line1 = new Operator("="),
                 line2 = new Operator("="),
@@ -86,7 +89,7 @@ public class InputTests {
 
     @Test (timeout = 5000)
     public void controlTest() {
-        TokenReader reader = new TokenReader(new File("src/InputTest/ControlTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/ControlTest.txt"));
 
         Operator line1 = new Operator("=");
         Control line2 = new Control("while");
@@ -95,7 +98,7 @@ public class InputTests {
 
         Literal l1 = new Literal("3", new Int()),
                 l2 = new Literal("1", new Int()),
-                l3 = new Literal("-999", new Int());
+                l3 = new Literal("999", new Int());
 
         Operator o1 = new Operator("-");
         o1.addChild(i1);    o1.addChild(l2);
@@ -119,14 +122,16 @@ public class InputTests {
 
     @Test (timeout = 5000)
     public void fieldTest() {
-        TokenReader reader = new TokenReader(new File("src/InputTest/FieldTest.txt"));
+        TokenReader reader = new TokenReader(new File("src/testFiles/FieldTest.txt"));
 
         Literal l1 = new Literal("12345", new Str());
-        Identifier i1 = new Identifier("length");
+        Identifier i1 = new Identifier("upper");
+        Group g1 = new Group("()");
 
-        Consecutive f1 = new Consecutive(l1, i1);
+        Consecutive f1 = new Consecutive(i1, g1);
+        Consecutive f2 = new Consecutive(l1, f1);
 
-        Group expected = new Group("EOF");  expected.setBody(f1);
+        Group expected = new Group("EOF");  expected.setBody(f2);
         Group read = reader.readGroup("");
 
         assertEquals("field case failed", expected, read);

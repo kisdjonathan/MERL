@@ -1,6 +1,8 @@
 package operations;
 
-import baseTypes.Function;
+import baseAST.SyntaxNode;
+import baseTypes.Signature;
+import derivedAST.Function;
 import derivedAST.FinalSyntaxNode;
 import derivedAST.Variable;
 
@@ -15,11 +17,24 @@ public class Contextualization extends BuiltinOperation {
     private Map<String, List<Function>> loadedFunctions = new HashMap<>();
 
     public Contextualization() {
-
+    }
+    public Contextualization(SyntaxNode context, SyntaxNode body) {
+        setOrigin(context);
+        setVector(body);
+    }
+    public Contextualization(FinalSyntaxNode context, FinalSyntaxNode body) {
+        setOrigin(context);
+        setVector(body);
     }
 
-    public Contextualization(FinalSyntaxNode context, FinalSyntaxNode body) {
-        //TODO
+    public void setOrigin(FinalSyntaxNode origin) {
+        super.setVector(origin);
+        for(FinalSyntaxNode field : origin.getBaseType().getFields()) {
+            putVariable((Variable) field);  //TODO L potentially erroneous
+        }
+        for(Function field : origin.getBaseType().getMethods()) {
+            putFunction(field);  //TODO L potentially erroneous
+        }
     }
 
     public void evaluate(){
@@ -38,5 +53,4 @@ public class Contextualization extends BuiltinOperation {
             ret.addAll(loadedFunctions.get(name));
         return ret;
     }
-
 }

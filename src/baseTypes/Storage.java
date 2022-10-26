@@ -1,13 +1,14 @@
 package baseTypes;
 
-import data.TypeSize;
-import data.Usage;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.Variable;
+import derivedAST.Function;
+import derivedAST.RelativeFunction;
+import derivedAST.RelativeVariable;
 
 import java.util.List;
 
-public class Storage extends FinalSyntaxNode implements BasicType {
+//TODO define storage (ie does it only store values of the same type...)
+public class Storage extends BasicType {
     public String getName() {
         return "storage";
     }
@@ -16,31 +17,27 @@ public class Storage extends FinalSyntaxNode implements BasicType {
         return Integer.MAX_VALUE;
     }
 
-    public Variable getIndex(int i) {
-        return null;
+    public RelativeVariable getIndex(int i) {
+        return null;    //TODO
     }
 
-    public List<Variable> getFields() {
-        return null;
+    public List<FinalSyntaxNode> getFields() {
+        return null;    //TODO
     }
 
-    public Variable getField(String name) {
-        return null;
+    public RelativeVariable getField(String name) {
+        return null;    //TODO
     }
 
     public List<Function> getMethods() {
-        return null;
-    }
-
-    public Function getMethod(Function signature) {
-        return null;
+        return null;    //TODO
     }
 
     public TypeSize getByteSize() {
         return null;
     }
 
-    public Usage getUsage() {
-        return null;
+    public FinalSyntaxNode newInstance(String s) {
+        throw new Error("unable to create new storage instance as a literal (from " + s + ")");
     }
 }

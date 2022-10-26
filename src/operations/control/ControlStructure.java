@@ -1,4 +1,4 @@
-package operations.controls;
+package operations.control;
 
 import baseAST.SyntaxNode;
 import baseTypes.Bool;

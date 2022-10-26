@@ -1,14 +1,14 @@
 package baseTypes;
 
-import data.TypeSize;
-import data.Usage;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.Variable;
+import derivedAST.Function;
+import derivedAST.RelativeFunction;
+import derivedAST.RelativeVariable;
 
 import java.util.List;
 
 //TODO
-public class Str extends FinalSyntaxNode implements BasicType{
+public class Str extends Storage{
     private boolean extended = false;
     private String value;
 
@@ -21,9 +21,6 @@ public class Str extends FinalSyntaxNode implements BasicType{
 
     public String getName() {
         return "str";
-    }
-    public Usage getUsage() {
-        return Usage.TYPE;
     }
 
     public boolean isLong() {
@@ -42,28 +39,45 @@ public class Str extends FinalSyntaxNode implements BasicType{
     public boolean typeContains(FinalSyntaxNode other) {
         return getByteSize().compareTo(other.getBaseType().getByteSize()) >= 0;
     }
+    public Char getCharType() {
+        return isLong() ? new Char(){{setLong(true);}} : new Char();
+    }
 
     public int indexCount() {
         return Integer.MAX_VALUE;
     }
-    public Variable getIndex(int i) {
-        //TODO
+    public RelativeVariable getIndex(int i) {
+        RelativeVariable ret = new RelativeVariable("", getCharType());
+        int offset = getCharType().getByteSize().forceInt() * i + 4;    //TODO L + 4 is to account for .length; find better alternative to adding 4
+        ret.setOffset(new Int(offset));
+        return ret;
     }
 
-    public List<Variable> getFields() {
-        //TODO
+    public List<FinalSyntaxNode> getFields() {
+        //TODO length
+        return null;
     }
-    public Variable getField(String name) {
-        //TODO
+    public RelativeVariable getField(String name) {
+        //TODO length
+        return null;
     }
     public List<Function> getMethods() {
         //TODO
+        return null;
     }
-    public Function getMethod(Function signature) {
+    public RelativeFunction getMethod(Function signature) {
         //TODO
+        return null;
     }
 
     public TypeSize getByteSize() {
-        return new TypeSize();
+        return new TypeSize();  //TODO
+    }
+    public FinalSyntaxNode newInstance(String s) {
+        return new Str(s);
+    }
+
+    public String toString() {
+        return super.toString() + " \"" + value + "\"";
     }
 }

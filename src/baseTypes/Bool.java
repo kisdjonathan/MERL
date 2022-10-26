@@ -1,13 +1,13 @@
 package baseTypes;
 
-import data.TypeSize;
 import data.Usage;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.Variable;
+import derivedAST.RelativeFunction;
+import derivedAST.RelativeVariable;
 
 import java.util.List;
 
-public class Bool extends FinalSyntaxNode implements BasicType {
+public class Bool extends BasicType {
     private boolean value = false;
 
     public Bool(){}
@@ -18,13 +18,7 @@ public class Bool extends FinalSyntaxNode implements BasicType {
     public String getName() {
         return "bool";
     }
-    public Usage getUsage() {
-        return Usage.TYPE;
-    }
 
-    public BasicType getBaseType() {
-        return this;
-    }
     public boolean typeEquals(FinalSyntaxNode other) {
         return getByteSize().compareTo(other.getBaseType().getByteSize()) == 0;
     }
@@ -32,27 +26,14 @@ public class Bool extends FinalSyntaxNode implements BasicType {
         return getByteSize().compareTo(other.getBaseType().getByteSize()) >= 0;
     }
 
-    public int indexCount() {
-        return 0;
-    }
-    public Variable getIndex(int i) {
-        return null;
-    }
-
-    public List<Variable> getFields() {
-        return null;
-    }
-    public Variable getField(String name) {
-        return null;
-    }
-    public List<Function> getMethods() {
-        return null;
-    }
-    public Function getMethod(Function signature) {
-        return null;
-    }
-
     public TypeSize getByteSize() {
         return new TypeSize(1);
+    }
+    public FinalSyntaxNode newInstance(String s) {
+        return new Bool(Integer.parseInt(s) != 0);
+    }
+
+    public String toString() {
+        return super.toString() + " " + value;
     }
 }

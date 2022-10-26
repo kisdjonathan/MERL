@@ -1,13 +1,11 @@
 package baseAST;
 
-import baseTypes.Function;
+import baseTypes.Signature;
+import derivedAST.Function;
 import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
 import data.Usage;
 import operations.*;
-import operations.arithmetic.ArithmeticInfix;
-import operations.bool.BoolInfix;
-import operations.comparison.ComparisonInfix;
 
 import java.util.*;
 
@@ -26,8 +24,8 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         public double position;
     }
     private static final String[][] builtinOperators = new String[][]{  //sorted by low to high precedence
-            {")", "}", "]", ":"},
-            {";"},
+            {")", "}", "]"},
+            {";", ":"},
             {"if", "while", "repeat", "for", "else", "nelse"},
             {"with"},
             {"<<", ">>"},   //TODO make eval left to right
@@ -61,13 +59,16 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             return opName;
         return ret;
     }
+
+
     private static final Set<String> infixes = new HashSet<>(Arrays.asList(
             "else", "nelse",
             "with",
             ";",
             "<<", ">>", "=", "!=", "<", ">", "<=", ">=",
             "+", "-", "*", "/", "^",
-            "->"
+            "->",
+            ":"
             //TODO complete
     ));
     private static final Set<String> prefixes = new HashSet<>(Arrays.asList(
@@ -79,21 +80,11 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
             ";", "%"
     ));
     private static final List<Set<String>> chainGroups = Arrays.asList(
-            new HashSet<>(Arrays.asList(
-                    "<", "<=", "="
-            )),
-            new HashSet<>(Arrays.asList(
-                    ">", ">=", "="
-            )),
-            new HashSet<>(Arrays.asList(
-                    "else", "nelse"
-            )),
-            new HashSet<>(List.of(
-                    ","
-            )),
-            new HashSet<>(List.of(
-                    ";"
-            ))
+            new HashSet<>(Arrays.asList("<", "<=", "=")),
+            new HashSet<>(Arrays.asList(">", ">=", "=")),
+            new HashSet<>(Arrays.asList("else", "nelse")),
+            new HashSet<>(List.of(",")),
+            new HashSet<>(List.of(";"))
             //TODO complete chaining
     );
     private static final Map<String, PrecedenceLevel> precedences = new HashMap<>();
@@ -142,12 +133,18 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
     private static boolean isLeftToRight(String op) {
         return !isRightToLeft(op);
     }
-    //pred comes after ref in the line (eg 1+2*3 -> pred = *, ref = +)
+
+    /**
+     * pred comes before ref in the line (eg 1+2*3 -> pred = *, ref = +)
+     */
     public static boolean isBefore(String pred, String ref) {
         int cmp = compareTo(pred, ref);
-        return cmp > 0 || cmp == 0 && isRightToLeft(pred);
+        return cmp > 0 || (cmp == 0 && isRightToLeft(pred));
     }
-    //post comes after ref in the line (eg 1*2+3 -> ref = *, post = +)
+
+    /**
+     * post comes after ref in the line (eg 1*2+3 -> ref = *, post = +)
+     */
     public static boolean isAfter(String post, String ref) {
         return !isBefore(post, ref);
     }
@@ -252,62 +249,103 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
         constant = v;
     }
 
-    private boolean isUndefinedVariable(SyntaxNode val) {
-        if(val.getUsage() == Usage.IDENTIFIER && getVariable(val.getName()) != null)
+    /**
+     * val must be an identifier or a structured identifier
+     */
+    protected boolean isUndefinedVariable(SyntaxNode val) {
+        if(val.equals(Usage.IDENTIFIER) && getVariable(val.getName()) == null)
             return true;
         if(val.getUsage() == Usage.FIELD && ((Consecutive)val).isStructure())
             return true;
         return false;
     }
 
+    /**
+     * cval must be function
+     */
+    protected boolean isUndefinedFunction(Consecutive cval) {
+        if(cval.isInferredFunction())
+            return getFunction(cval.getOrigin().getName()) == null;
+        if(cval.isTypedFunction())
+            return getFunction(((Consecutive)cval.getOrigin()).getOrigin().getName()) == null;
+        throw new Error(cval + " is not a function");
+    }
+
     public FinalSyntaxNode getReplacement() {
-        if(name.equals("<<")) {
-            SyntaxNode dest = getChild(0);
-            SyntaxNode source = getChild(1);
-            if(isUndefinedVariable(dest))
-                return new Assign(dest.getEvaluatedReplacement(), source.getEvaluatedReplacement()); //TODO L tuple assignment
-            if(source.getUsage() == Usage.FIELD && ((Consecutive)source).isCall()) {
-                //function
-
-                Consecutive cval = (Consecutive) dest;
-                String name;
-                SyntaxNode param, rets;
-                if(cval.isInferredFunction()) {
-                    name = cval.getOrigin().getName();
-                    param = cval.getVector();
-                    rets = new Group();
-                } else if(cval.isTypedFunction()) {
-                    name = ((Consecutive)cval.getOrigin()).getOrigin().getName();
-                    rets = ((Consecutive)cval.getOrigin()).getVector();
-                    param = cval.getVector();
-                } else {
-                    throw new UnsupportedOperationException("can not assign to function return");
-                }
-
-                Function ret = new Function(name);
-                ret.setArgs(param);
-                ret.setRets(rets);
-
-                ret.setBody(source);  //TODO L as of now, only assigns can give a return; add returns and lambda evaluations
-
-                putFunction(ret);
-                return ret;
-            }
+        if(size() == 1) {   //prefixes and suffixes
+            FinalSyntaxNode origin = getChild(0).getEvaluatedReplacement();
+            Tuple args = Tuple.asTuple(origin);
+            Signature signature = new Signature(args, null);    //TODO rets
+            Function f = getFunction(getBuiltin(name), signature);
+            if(f != null)
+                return new Call(f, args);
+            if(prefix)
+                return BuiltinOperation.prefix(name, origin);
+            else
+                return BuiltinOperation.suffix(name, origin);
         }
-        else if(name.equals(">>")) {
-            Contextualization ret = new Contextualization();
-            ret.setOrigin(getChild(0));
-            ret.setVector(getChild(1));
+
+        //size is 2
+        SyntaxNode dest = getChild(0);
+        SyntaxNode source = getChild(1);
+
+        //function definition
+        if(dest.equals(Usage.FIELD) && ((Consecutive)dest).isCall() &&
+                ((name.equals("=") && isUndefinedFunction((Consecutive) dest)) ||
+                name.equals("<<"))) {
+            Consecutive cval = (Consecutive) dest;
+
+            String funcName;
+            SyntaxNode param, rets;
+            if(cval.isInferredFunction()) {
+                funcName = cval.getOrigin().getName();
+                param = cval.getVector();
+                rets = new Group();
+            } else if(cval.isTypedFunction()) {
+                funcName = ((Consecutive)cval.getOrigin()).getOrigin().getName();
+                rets = ((Consecutive)cval.getOrigin()).getVector();
+                param = cval.getVector();
+            } else {
+                throw new UnsupportedOperationException("can not assign to function return");
+            }
+
+            Function ret = new Function(funcName);
+            ret.getDeclaredType().setArgs(param);
+            ret.getDeclaredType().setRets(rets);
+
+            putFunction(ret);
+
+            ret.setBody(source);
+            return ret;
+        }
+        //variable assignment
+        if((name.equals("=") && isUndefinedVariable(dest)) ||
+                name.equals("<<")) {
+            Assign ret = new Assign();
+            ret.setParent(getParent());
+            ret.setVector(source);
+            ret.setOrigin(dest);
 
             return ret;
         }
-        FinalSyntaxNode origin = getChild(0).getEvaluatedReplacement(), vector = getChild(1).getEvaluatedReplacement();
-        Function signature = new Function(getBuiltin(name), Tuple.asTuple(origin), Tuple.asTuple(vector));
-        Function f = getFunction(signature);
-        if(f != null)
-            return new Call(f, new Tuple(Arrays.asList(origin, vector)));
+        //contextualization
+        if(name.equals(">>")) {
+            return new Contextualization(dest, source);
+        }
+
+        //general overridable operations
+        //TODO L restructure to perform with return type overloading, see below in signature
+        FinalSyntaxNode origin = dest.getEvaluatedReplacement();
+        FinalSyntaxNode vector = source.getEvaluatedReplacement();
+
+        Tuple args = new Tuple(Arrays.asList(origin, vector));
+        Signature signature = new Signature(args, null /*TODO L here*/);
+        Function f = getFunction(getBuiltin(name), signature);
+        if (f != null)
+            return new Call(f, args);
         FinalSyntaxNode ret = BuiltinOperation.infix(name, origin, vector);
         return ret;
+
     }
 
     public boolean isBefore(Operator other) {
@@ -327,8 +365,18 @@ public class Operator extends SyntaxNode implements Iterable<SyntaxNode>{
     public String toString() {
         return super.toString() + children;
     }
-
     public Iterator<SyntaxNode> iterator() {
         return children.listIterator();
+    }
+
+    public boolean equals(Object other) {
+        if(!(Operator.super.equals(other) &&
+                size() == ((SyntaxNode)other).size() &&
+                isChained() == ((Operator) other).isChained()))
+            return false;
+        for(int i = 0; i < size(); ++i)
+            if(!((Operator)other).getChild(i).equals(getChild(i)))
+                return false;
+        return true;
     }
 }

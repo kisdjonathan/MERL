@@ -1,20 +1,18 @@
 package baseTypes;
 
-import baseAST.Literal;
-import data.TypeSize;
+import data.Usage;
 import derivedAST.*;
 
 import java.util.*;
-import java.util.List;
 
 //TODO complete
-public interface BasicType{
+public abstract class BasicType extends FinalSyntaxNode{
     /**
      * checks if the type of other equals this
      * the criteria for equality is defined as having homogenous properties
      * i.e. both have the same number of indices and the same fields
      **/
-    default boolean typeEquals(FinalSyntaxNode other) {
+    public boolean typeEquals(FinalSyntaxNode other) {
         BasicType otherType = other.getBaseType();
         return indexCount() == otherType.indexCount() &&
                 ((getMethods() != null && otherType.getMethods() != null && new HashSet<>(getMethods()).equals(new HashSet<>(otherType.getMethods()))) ||
@@ -27,7 +25,7 @@ public interface BasicType{
      * the criteria for equality is defined as having the exact same properties
      * i.e. both have the same name, the same types, the same number of indices, the same fields
      **/
-    default boolean typeStrictEquals(FinalSyntaxNode other) {
+    public boolean typeStrictEquals(FinalSyntaxNode other) {
         return other.getBaseType().getName().equals(getName());
     }
     /**
@@ -35,7 +33,7 @@ public interface BasicType{
      * the criteria for contains is defined as having all properties of other defined
      * i.e. if other is indexed, this must also be indexed, but if other is not, this still can be indexed
      **/
-    default boolean typeContains(FinalSyntaxNode other) {
+    public boolean typeContains(FinalSyntaxNode other) {
         BasicType otherType = other.getBaseType();
         return indexCount() >= otherType.indexCount() &&
                 ((getMethods() != null && otherType.getMethods() != null && new HashSet<>(getMethods()).containsAll(otherType.getMethods())) ||
@@ -49,52 +47,103 @@ public interface BasicType{
      * returns the name of the type
      * comparing names will not suffice to check for equality
      **/
-    String getName();
+    public abstract String getName();
+
+    /**
+     * implements the getUsage of FinalSyntaxNode
+     */
+    public Usage getUsage(){
+        return Usage.TYPE;
+    }
+
+    /**
+     * implements the getUsage of FinalSyntaxNode
+     */
+    public BasicType getBaseType(){
+        return this;
+    }
+
+    /**
+     * returns true if the type stores a number
+     * numbers include int, float, and char
+     */
+    public boolean isNumeric() {
+        return false;
+    }
 
     /**
      * returns the maximum number of indices that this can contain
      * return in [0, int max]
      * returns 0 if not indexable
      **/
-    int indexCount();
+    public int indexCount() {
+        return 0;
+    }
     /**
      * returns the variable associated with index i
      * if none exists, returns null
      * used by compiler
      **/
-    Variable getIndex(int i);
+    public FinalSyntaxNode getIndex(int i) {
+        return null;
+    }
 
     /**
      * returns all fields of this
      * if there are no fields, returns null
      **/
-    List<Variable> getFields();
+    public Collection<FinalSyntaxNode> getFields() {
+        return null;
+    }
     /**
      * returns the variable associated with field name
      * if none exists, returns null
      * used by compiler
      **/
-    Variable getField(String name);
+    public FinalSyntaxNode getField(String name) {
+        return null;
+    }
 
     /**
      * returns all methods of this
      * if there are no methods, returns null
      **/
-    List<Function> getMethods();
+    public Collection<Function> getMethods() {
+        return null;
+    }
     /**
      * returns the function associated with method signature
      * if none exists, returns null
      * used by compiler
      **/
-    Function getMethod(Function signature);
+    public Function getMethod(String name, Signature signature) {
+        Collection<Function> potential = getMethods();
+        Function closest = null;
+        for(Function option : potential)
+            if(option.equals(name)){
+                if(option.typeStrictEquals(signature))
+                    return option;
+                if(closest == null && option.typeEquals(signature))
+                    closest = option;
+            }
+        return closest;
+    }
 
     /**
      * returns the size of this
      **/
-    TypeSize getByteSize();
+    public abstract TypeSize getByteSize();
+
+    /**
+     * returns a new instance of the type with the value
+     */
+    public FinalSyntaxNode newInstance(String s) {
+        throw new Error("unable to create a new instance of " + getName() + "(from " + s + ")");
+    }
+
 
     //TODO L allow custom suffixes
-    static HashSet<String> suffixes = new HashSet<>(Arrays.asList(
+    private static HashSet<String> suffixes = new HashSet<>(Arrays.asList(
             "d", "ud", "ld", "uld",
             "c", "uc", "lc", "ulc",
             "f", "uf", "lf", "ulf",
@@ -110,24 +159,24 @@ public interface BasicType{
     /**
      * used for parsing
      **/
-    static boolean isSuffix(String suffix) {
+    public static boolean isSuffix(String suffix) {
         return suffixes.contains(suffix);
     }
     /**
      * used for parsing
      **/
-    static FinalSyntaxNode decode(String suffix) {
+    public static FinalSyntaxNode decodeSuffix(String suffix) {
         //TODO L make exhaustive
         return switch (suffix.toLowerCase()) {
             case "b" -> new Bool();
             case "c" -> new Char();
-            case "lc" -> new Char();
+            case "lc" -> new Char(){{setLong(true);}};
             case "d" -> new Int();
-            case "ld" -> new Int();
+            case "ld" -> new Int(){{setLong(true);}};
             case "f" -> new Float();
-            case "lf" -> new Float();
+            case "lf" -> new Float(){{setLong(true);}};
             case "s" -> new Str();
-            case "ls" -> new Str();
+            case "ls" -> new Str(){{setLong(true);}};
             default -> null;
         };
     }

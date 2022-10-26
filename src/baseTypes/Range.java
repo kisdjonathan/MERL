@@ -1,16 +1,27 @@
 package baseTypes;
 
+import baseAST.ChainedOperator;
 import baseAST.Group;
+import baseAST.Operator;
 import baseAST.SyntaxNode;
-import data.TypeSize;
 import data.Usage;
-import derivedAST.FinalSyntaxNode;
-import derivedAST.Variable;
+import derivedAST.*;
 
 import java.util.List;
 
-public class Range extends FinalSyntaxNode implements BasicType {
-    private FinalSyntaxNode start, stop, step = null;
+public abstract class Range extends BasicType {
+    private FinalSyntaxNode start, stop, step = null;   //TODO compare between values of literals
+
+    public Range(){}
+    public Range(int start, int stop) {
+        this.start = new Int(start);
+        this.stop = new Int(stop);
+    }
+    public Range(int start, int stop, int step) {
+        this.start = new Int(start);
+        this.stop = new Int(stop);
+        this.step = new Int(step);
+    }
 
     public String getName() {
         return "range";
@@ -20,41 +31,59 @@ public class Range extends FinalSyntaxNode implements BasicType {
     }
 
 
+    public FinalSyntaxNode getStart() {
+        return start;
+    }
     public void setStart(FinalSyntaxNode v) {
         start = v;
     }
+    public void setStart(SyntaxNode v) {
+        v.setParent(this);
+        setStart(v.getEvaluatedReplacement());
+    }
 
+    public FinalSyntaxNode getStop() {
+        return stop;
+    }
     public void setStop(FinalSyntaxNode v) {
         stop = v;
+    }
+    public void setStop(SyntaxNode v) {
+        v.setParent(this);
+        setStop(v.getEvaluatedReplacement());
     }
 
     /**
      * null step means consecutive
      */
+    public FinalSyntaxNode getStep() {
+        return step;
+    }
     public void setStep(FinalSyntaxNode v) {
         step = v;
     }
+    public void setStep(SyntaxNode v) {
+        v.setParent(this);
+        setStep(v.getEvaluatedReplacement());
+    }
 
-
+    /**
+     * range indices are start + i * step at [i] if start is inclusive, otherwise start + (1 + i) * step
+     * if step is not given, it is assumed to be 0
+     */
     public int indexCount() {
-        return 0;   //TODO
-    }
-    public Variable getIndex(int i) {
-        return null;    //TODO
+        return Integer.MAX_VALUE;
     }
 
-    public List<Variable> getFields() {
+    public List<FinalSyntaxNode> getFields() {
         return null;    //TODO
     }
-    public Variable getField(String name) {
+    public RelativeVariable getField(String name) {
         return null;    //TODO
     }
 
     public List<Function> getMethods() {
-        return null;
-    }
-    public Function getMethod(Function signature) {
-        return null;
+        return null;    //TODO
     }
 
     public TypeSize getByteSize() {
@@ -67,22 +96,31 @@ public class Range extends FinalSyntaxNode implements BasicType {
             case "(]" -> new RangeEI();
             case "[)" -> new RangeIE();
             case "[]" -> new RangeII();
+            default -> throw new Error("invalid range " + node.getName());
         };
         SyntaxNode body = node.getBody();
-        body.setParent(ret);
-        Tuple values = Tuple.asTuple(body.getEvaluatedReplacement());
-
-        switch (values.size()) {
-            case 3:
-                ret.setStep(values.getIndex(2));
-            case 2:
-                ret.setStop(values.getIndex(1));
-                ret.setStart(values.getIndex(0));
-                break;
-            case 1:
-                ret.setStart(new Int(0));
-                ret.setStop(values.getIndex(0));
+        if(body.equals(Usage.OPERATOR) &&
+                ((Operator)body).isChained() && (
+                    ((ChainedOperator)body).hasOperator(",") ||
+                    ((ChainedOperator)body).hasOperator(";")
+                )){
+            ret.setStart(((Operator)body).getChild(0));
+            ret.setStop(((Operator)body).getChild(1));
+            ret.setStep(((Operator)body).getChild(2));
         }
+        else if (body.equals(Usage.OPERATOR) &&
+                (body.equals(",") || body.equals(";"))
+        ){
+            ret.setStart(((Operator)body).getChild(0));
+            ret.setStop(((Operator)body).getChild(1));
+        }
+        else {
+            ret.setStop(body);
+        }
+
         return ret;
+    }
+    public FinalSyntaxNode newInstance(String s) {
+        throw new Error("unable to create new range instance as a literal (from " + s + ")");
     }
 }

@@ -2,10 +2,7 @@ package operations;
 
 import baseAST.SyntaxNode;
 import baseTypes.BasicType;
-import baseTypes.Function;
-import baseTypes.Tuple;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.*;
 
 /**
  * Cast represents cases of conversions where from != to and from->to is not overridden

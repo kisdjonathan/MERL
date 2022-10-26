@@ -29,6 +29,7 @@ public enum Usage {
     TYPE,
     TUPLE,
     VARIABLE,
+    FUNCTION,
     /**
      * the following are TODO
      */

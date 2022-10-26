@@ -1,9 +1,10 @@
 package compiler;
 
 import baseAST.*;
-import baseTypes.BasicType;
-import baseTypes.Str;
+import baseTypes.*;
 import baseAST.Consecutive;
+import baseTypes.Float;
+import derivedAST.FinalSyntaxNode;
 
 import java.io.File;
 import java.text.NumberFormat;
@@ -28,13 +29,13 @@ public class TokenReader {
         SyntaxNode ret = null;
         if(Group.isStartDelimiter(next))
             ret = readGroup(next);
+        else if(Control.isControl(next))
+            ret = readControl(next);
         else if(Operator.isPrefix(next))
             ret = new Operator(next){{
                 setPrefix(true);
                 addChild(get());
             }};
-        else if(Control.isControl(next))
-            ret = readControl(next);
         else if(Literal.isLiteral(next))
             ret = readLiteral(next);
         else
@@ -48,19 +49,33 @@ public class TokenReader {
 
     //takes in first part of a literal
     public Literal readLiteral(String value) {
+        //TODO L string with suffix c for char and char with suffix s for string for preference
         if(value.equals("\"")){ //string
             value = source.get();
             if(BasicType.isSuffix(source.peek()))
-                return new Literal(value, BasicType.decode(source.get()));
+                return new Literal(value, BasicType.decodeSuffix(source.get()));
             else
                 return new Literal(value, new Str());
+        }
+        if(value.equals("\'")){
+            value = source.get();
+            if(BasicType.isSuffix(source.peek()))
+                return new Literal(value, BasicType.decodeSuffix(source.get()));
+            else
+                return new Literal(String.valueOf(value.charAt(0)), new Char());    //TODO L
         }
         else if(Character.isDigit(value.charAt(0))){    //number
             ParsePosition pos = new ParsePosition(0);
             Number n = NumberFormat.getInstance().parse(value, pos);    //TODO implement hexadecimal numbers (issue with in-number letters, consider 0x)
-            String suffix = value.substring(pos.getIndex());
+            FinalSyntaxNode t = BasicType.decodeSuffix(value.substring(pos.getIndex()));
+            if(t == null) {
+                if (value.contains(".") || value.contains("E") || value.contains("e"))
+                    t = new Float();
+                else
+                    t = new Int();
+            }
 
-            return new Literal(n.toString(), BasicType.decode(suffix));
+            return new Literal(n.toString(), t);
         }
         else
             return null;
@@ -81,10 +96,13 @@ public class TokenReader {
         SyntaxNode body = get();
         while(Operator.isOperator(source.peek()) &&
                 Operator.isBefore(source.peek(), id))
-            getOperator(body);
+            body = getOperator(body);
 
-        Control ret = new Control(id){{setControl(control);
-            setBody(body);}};
+        SyntaxNode finalBody = body;
+        Control ret = new Control(id){{
+            setControl(control);
+            setBody(finalBody);
+        }};
 
         if(Control.isControl(id))
             while(Control.isCase(source.peek())) {                //else/nelse
@@ -126,8 +144,10 @@ public class TokenReader {
                     next = getOperator(next);
                 else if(Operator.isChainable(oper, source.peek())) {
                     if(!ret.isChained()) {
-                        ret = new ChainedOperator() {{addChild(oper, predecessor);}};
+                        ret = new ChainedOperator();
+                        ((ChainedOperator)ret).addChild(oper, predecessor);
                     }
+
                     assert ret instanceof ChainedOperator;
                     ((ChainedOperator)ret).addChild(source.get(), next);
                     if(eof())

@@ -57,7 +57,7 @@ public class Group extends SyntaxNode{
                 }};
             case "(]":
             case "[)":
-                return Range.decode(this);    //TODO L range
+                return Range.decode(this);    //TODO L range from [] and ()
             default:    //EOF
                 return new Local(){{
                     setBody(body);
@@ -102,5 +102,9 @@ public class Group extends SyntaxNode{
 
     public String toString() {
         return super.toString() + "[" + body + "]";
+    }
+    public boolean equals(Object other) {
+        return super.equals(other) && other instanceof Group gOther && (
+                gOther.getBody() == null && getBody() == null || gOther.getBody().equals(getBody()));
     }
 }

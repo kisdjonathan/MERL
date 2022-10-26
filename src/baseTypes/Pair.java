@@ -2,6 +2,8 @@ package baseTypes;
 
 import data.Usage;
 import derivedAST.FinalSyntaxNode;
+import derivedAST.RelativeVariable;
+import derivedAST.Variable;
 
 import java.util.List;
 
@@ -26,14 +28,14 @@ public class Pair extends Tuple{
     }
 
     public String getName() {
-        return "<"+ getFirst().getName() + "," + getSecond().getName() +">";
+        return "pair";
     }
 
     public Usage getUsage() {
         return Usage.TUPLE;
     }
 
-    public FinalSyntaxNode getField(String name) {
+    public RelativeVariable getField(String name) {
         //TODO first and second
         return null;
     }
