@@ -23,7 +23,7 @@ public class SymbolReader {
         for(char i = 'a'; i <= 'z'; ++i)
             literalChars[i] = true;
         literalChars['$'] = literalChars['?'] = literalChars['.'] = literalChars['_'] = true;
-    };
+    }
 
     private BufferedReader source;
     private Queue<String> lineBuffer = new LinkedList<>();  //lineBuffer is always full unless eof

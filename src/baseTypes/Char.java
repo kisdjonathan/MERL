@@ -1,11 +1,6 @@
 package baseTypes;
 
-import data.Usage;
 import derivedAST.FinalSyntaxNode;
-import derivedAST.RelativeFunction;
-import derivedAST.RelativeVariable;
-
-import java.util.List;
 
 public class Char extends Numerical{
     private short value = '\0';

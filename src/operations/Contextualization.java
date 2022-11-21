@@ -6,6 +6,7 @@ import derivedAST.Function;
 import derivedAST.FinalSyntaxNode;
 import derivedAST.Variable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,12 @@ public class Contextualization extends BuiltinOperation {
     public void setOrigin(FinalSyntaxNode origin) {
         super.setVector(origin);
         for(FinalSyntaxNode field : origin.getBaseType().getFields()) {
-            putVariable((Variable) field);  //TODO L potentially erroneous
+            loadedVariables.put(field.getName(), (Variable) field);  //TODO L: potentially erroneous for read only variables
         }
         for(Function field : origin.getBaseType().getMethods()) {
-            putFunction(field);  //TODO L potentially erroneous
+            if(!loadedFunctions.containsKey(field.getName()))
+                loadedFunctions.put(field.getName(), new ArrayList<>());
+            loadedFunctions.get(field.getName()).add(field);
         }
     }
 

@@ -1,7 +1,5 @@
 package baseTypes;
 
-import derivedAST.FinalSyntaxNode;
-
 public abstract class Numerical extends BasicType {
     private boolean extended = false;
 

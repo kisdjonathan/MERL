@@ -1,6 +1,7 @@
 package derivedAST;
 
 import Interpreter.Context;
+import Interpreter.Value;
 import baseAST.SyntaxNode;
 import baseTypes.BasicType;
 
@@ -77,7 +78,7 @@ public abstract class FinalSyntaxNode extends SyntaxNode {
     /**
      * for interpreter
      */
-    public FinalSyntaxNode interpret(Context context) {
+    public Value interpret(Context context) {
         return null;    //TODO
     }
 }

@@ -75,7 +75,7 @@ public class Consecutive extends SyntaxNode {
         return vector.equals(Usage.GROUP, "[]");
     }
 
-    //true if (...)SUFFIX
+    //true if ANY_GROUP SUFFIX
     public boolean isGroupedLiteral() {
         return origin.equals(Usage.GROUP) && vector.equals(Usage.IDENTIFIER) && BasicType.isSuffix(vector.getName());
     }
@@ -112,6 +112,14 @@ public class Consecutive extends SyntaxNode {
             switch (vector.getName()) {
                 case "r":
                     return Range.decode((Group) origin);
+                case "set": //TODO these cases
+                case "seto":
+                case "setm":
+                case "setmo":
+                case "dict":
+                case "dicto":
+                case "dictm":
+                case "dictmo":
                 default:
                     return origin.getReplacement();//TODO L
             }
