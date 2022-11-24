@@ -2,9 +2,7 @@ package operations;
 
 import baseAST.SyntaxNode;
 import baseTypes.Signature;
-import derivedAST.Function;
-import derivedAST.FinalSyntaxNode;
-import derivedAST.Variable;
+import derivedAST.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +29,16 @@ public class Contextualization extends BuiltinOperation {
     public void setOrigin(FinalSyntaxNode origin) {
         super.setVector(origin);
         for(FinalSyntaxNode field : origin.getBaseType().getFields()) {
-            loadedVariables.put(field.getName(), (Variable) field);  //TODO L: potentially erroneous for read only variables
+            RelativeVariable ref = new RelativeVariable(field.getName(), field.getDeclaredType());
+            ref.setReference(origin);
+            loadedVariables.put(field.getName(), ref);
         }
         for(Function field : origin.getBaseType().getMethods()) {
             if(!loadedFunctions.containsKey(field.getName()))
                 loadedFunctions.put(field.getName(), new ArrayList<>());
-            loadedFunctions.get(field.getName()).add(field);
+            RelativeFunction ref = new RelativeFunction(field.getName(), field.getDeclaredType());
+            ref.setReference(origin);
+            loadedFunctions.get(field.getName()).add(ref);
         }
     }
 

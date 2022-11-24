@@ -19,5 +19,6 @@ public class Add extends ArithmeticInfix{
         Value first = getOrigin().interpret(context);
         Value second = getOrigin().interpret(context);
 
+
     }
 }

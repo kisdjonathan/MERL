@@ -9,7 +9,7 @@ public class RelativeVariable extends Variable{
     private FinalSyntaxNode offset;
 
     /**
-     * use "__unnamed__" for variables without name
+     * use "__unnamed__" for variables without name (ie index)
      */
     public RelativeVariable(String name, FinalSyntaxNode type) {
         super(name, type);
@@ -22,6 +22,9 @@ public class RelativeVariable extends Variable{
         this.reference = reference;
     }
 
+    /**
+     * used for index
+     */
     public void setOffset(FinalSyntaxNode offset) {
         this.offset = offset;
     }

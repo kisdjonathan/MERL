@@ -14,11 +14,15 @@ public class Function extends Local {
         this.name = name;
         type = new Signature();
     }
+    public Function(String name, Signature sig) {
+        this.name = name;
+        setDeclaredType(sig);
+    }
 
     /**
      * use null for rets if undeclared
      */
-    public Function(String label, Tuple args, Tuple rets) {
+    public Function(String name, Tuple args, Tuple rets) {
         this.name = name;
         setDeclaredType(new Signature(args, rets));
     }

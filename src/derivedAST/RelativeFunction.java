@@ -14,6 +14,9 @@ public class RelativeFunction extends Function {
     public RelativeFunction(String name) {
         super(name);
     }
+    public RelativeFunction(String name, Signature sig) {
+        super(name, sig);
+    }
     public RelativeFunction(String name, Tuple args, Tuple rets) {
         super(name, args, rets);
     }

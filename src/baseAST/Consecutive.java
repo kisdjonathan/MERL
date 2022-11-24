@@ -5,6 +5,7 @@ import derivedAST.FinalSyntaxNode;
 import data.Usage;
 import derivedAST.*;
 import operations.Call;
+import operations.Contextualization;
 import operations.Index;
 
 import java.util.List;
@@ -125,8 +126,7 @@ public class Consecutive extends SyntaxNode {
             }
         }
 
-        //have field be a local and accept 2 syntaxnodes to evaluate as children so that origin's fields can be loaded first
-        return new Field(origin, vector);
+        return new Contextualization(origin, vector);
     }
 
     public String toString() {
